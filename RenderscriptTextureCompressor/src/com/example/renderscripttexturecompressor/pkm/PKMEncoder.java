@@ -1,15 +1,23 @@
 package com.example.renderscripttexturecompressor.pkm;
 
+import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.opengl.ETC1;
+import android.opengl.ETC1Util;
 import android.opengl.ETC1Util.ETC1Texture;
+import android.os.Environment;
 import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.Element;
 import android.support.v8.renderscript.RenderScript;
@@ -21,9 +29,12 @@ import com.example.renderscripttexturecompressor.etc1.ScriptC_etc1compressor;
 public class PKMEncoder {
 	public static ETC1Texture encodeTextureAsETC1(InputStream stream) throws IOException,
 			FileNotFoundException {
-		stream.reset();
-		stream.mark(1024);
-		Bitmap bitmap = BitmapFactory.decodeStream(stream);
+		//stream.reset();
+		//stream.mark(1024);
+		Options opts = new BitmapFactory.Options();
+		opts.inPremultiplied = false;
+		opts.inPreferredConfig = Config.RGB_565;
+		Bitmap bitmap = BitmapFactory.decodeStream(stream,null,opts);
 		if (bitmap != null) {
 			ByteBuffer buffer = ByteBuffer.allocateDirect(
 					bitmap.getRowBytes() * bitmap.getHeight()).order(
@@ -49,19 +60,46 @@ public class PKMEncoder {
 
 			RsETC1.encodeImage(buffer, bitmap.getWidth(), bitmap.getHeight(), 2,
 					2 * bitmap.getWidth(), compressedImage);
-			ETC1Texture texture = new ETC1Texture(bitmap.getWidth(),
-					bitmap.getHeight(), compressedImage);
-
-			// give corrupted images
-			// ETC1Texture texture = ETC1Util.compressTexture(buffer,
-			// bitmap.getWidth(), bitmap.getHeight(), 2, bitmap.getWidth()*2);
+			
+			ETC1Texture texture = new ETC1Texture(bitmap.getWidth(), bitmap.getHeight(), compressedImage);
 			
 			return texture;
 		}
 		return null;
 	}
 	
-	public static void testETC1compressors (RenderScript rs) {
+	public static void testETC1ImageCompressor (RenderScript rs) {
+		InputStream input;
+		try {
+			input = PKMEncoder.class.getResourceAsStream("/testdata/world.topo.bathy.200405.3x256x128.jpg");
+			
+            // Wrap the stream in a BufferedInputStream to provide the mark/reset capability required to
+            // avoid destroying the stream when it is read more than once. BufferedInputStream also improves
+            // file read performance.
+            if (!(input instanceof BufferedInputStream))
+            	input = new BufferedInputStream(input);
+            
+			ETC1Texture texture = encodeTextureAsETC1(input);
+			if (texture != null) {
+				int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE
+						+ texture.getHeight() * texture.getWidth() / 2;
+				File f = new File(Environment.getExternalStorageDirectory(),"bmngpkm.pkm");
+				f.delete();
+				f.createNewFile();
+				ETC1Util.writeTexture(texture, new FileOutputStream(f));
+				System.out.println("Texture PKM created ");
+			}		
+			System.out.println("Texture PKM creation failed ");
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static void testETC1BlockCompressors (RenderScript rs) {
 		// Test android class (reference)
 		byte[] in1 = {  6, 5, 7,
 						7, 6, 5,

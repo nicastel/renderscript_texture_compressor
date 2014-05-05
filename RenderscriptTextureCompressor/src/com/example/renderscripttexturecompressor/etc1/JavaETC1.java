@@ -366,9 +366,6 @@ public class JavaETC1 {
 	        }
 	        int decodedB = clamp(b + modifier);
 	        score += square(decodedB - pixelB);
-	        if(score <0 ) {
-	        	System.out.println(score);
-	        }
 	        if (score < bestScore) {
 	            bestScore = score;
 	            bestIndex = i;
@@ -550,9 +547,9 @@ public class JavaETC1 {
 	    a = etc_encode_block_helper(pIn, inMask, colors, a, false);
 	    b = etc_encode_block_helper(pIn, inMask, flippedColors, b, true);
 	    a = take_best(a, b);
-	    System.out.println("a.high : "+a.high);
-	    System.out.println("a.low : "+a.low);
-	    System.out.println("a.score : "+a.score);
+//	    System.out.println("a.high : "+a.high);
+//	    System.out.println("a.low : "+a.low);
+//	    System.out.println("a.score : "+a.score);
 	    writeBigEndian(pOut, 0, a.high);
 	    writeBigEndian(pOut, 4, a.low);
 	}

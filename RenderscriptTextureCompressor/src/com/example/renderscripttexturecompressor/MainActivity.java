@@ -29,7 +29,8 @@ public class MainActivity extends Activity {
 		
 		mRS = RenderScript.create(this, ContextType.DEBUG);
 		
-		PKMEncoder.testETC1compressors(mRS);
+		PKMEncoder.testETC1BlockCompressors(mRS);
+		PKMEncoder.testETC1ImageCompressor(mRS);
 	}
 
 	@Override
