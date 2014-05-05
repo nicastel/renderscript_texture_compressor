@@ -337,14 +337,14 @@ public class JavaETC1 {
 	}
 
 	static
-	int square(int x) {
-	    return x * x;
+	long square(int x) {
+	    return (long) x * (long) x;
 	}
 
 	static long chooseModifier(short[] pBaseColors, int icolor,
 			short[] pIn, int indice, etc_compressed pCompressed, long bitIndex,
 			int[] pModifierTable, int iModifierTable) {
-		long bestScore = ~0;
+		long bestScore = Long.MAX_VALUE;
 	    long bestIndex = 0;
 	    int pixelR = pIn[indice];
 	    int pixelG = pIn[indice+1];
@@ -355,17 +355,20 @@ public class JavaETC1 {
 	    for (int i = 0; i < 4; i++) {
 	        int modifier = pModifierTable[iModifierTable+i];
 	        int decodedG = clamp(g + modifier);
-	        long score = (6 * square(decodedG - pixelG));
+	        long score = (6l * square(decodedG - pixelG));
 	        if (score >= bestScore) {
 	            continue;
 	        }
 	        int decodedR = clamp(r + modifier);
-	        score += (3 * square(decodedR - pixelR));
+	        score += (3l * square(decodedR - pixelR));
 	        if (score >= bestScore) {
 	            continue;
 	        }
 	        int decodedB = clamp(b + modifier);
 	        score += square(decodedB - pixelB);
+	        if(score <0 ) {
+	        	System.out.println(score);
+	        }
 	        if (score < bestScore) {
 	            bestScore = score;
 	            bestIndex = i;
@@ -483,7 +486,7 @@ public class JavaETC1 {
 	static
 	etc_compressed etc_encode_block_helper(short[] pIn, long inMask,
 			short[] pColors, etc_compressed pCompressed, boolean flipped) {
-	    pCompressed.score = ~0;
+	    pCompressed.score = Long.MAX_VALUE;
 	    pCompressed.high = (flipped ? 1 : 0);
 	    pCompressed.low = 0;
 
@@ -547,6 +550,9 @@ public class JavaETC1 {
 	    a = etc_encode_block_helper(pIn, inMask, colors, a, false);
 	    b = etc_encode_block_helper(pIn, inMask, flippedColors, b, true);
 	    a = take_best(a, b);
+	    System.out.println("a.high : "+a.high);
+	    System.out.println("a.low : "+a.low);
+	    System.out.println("a.score : "+a.score);
 	    writeBigEndian(pOut, 0, a.high);
 	    writeBigEndian(pOut, 4, a.low);
 	}

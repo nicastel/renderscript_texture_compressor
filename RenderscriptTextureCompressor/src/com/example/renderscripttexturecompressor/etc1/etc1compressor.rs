@@ -428,6 +428,11 @@ void etc1_encode_block(const etc1_byte* pIn, etc1_uint32 inMask, etc1_byte* pOut
     etc_encode_block_helper(pIn, inMask, colors, &a, false);
     etc_encode_block_helper(pIn, inMask, flippedColors, &b, true);
     take_best(&a, &b);
+    
+    rsDebug("a.high",a.high);
+    rsDebug("a.low",a.low);
+    rsDebug("a.score",a.score);
+    
     writeBigEndian(pOut, a.high);
     writeBigEndian(pOut + 4, a.low);
 }

@@ -85,7 +85,7 @@ public class PKMEncoder {
 		ByteBuffer out = ByteBuffer.allocateDirect(8).order(
 				ByteOrder.nativeOrder());
 
-		int mask = 2;
+		int mask = 8;
 		inb.rewind();
 		ETC1.encodeBlock(inb, mask, out);
 		inb.rewind();
