@@ -410,7 +410,7 @@ void etc_encode_block_helper(const etc1_byte* pIn, etc1_uint32 inMask, const etc
     }
 } 
  
-// 4 x 4 x 3 x 8  bit in -> 8 * 8 bit out
+// 4 x 4 x 3 x 8  bit + 16 bit in -> 8 * 8 bit out
 // Input is a 4 x 4 square of 3-byte pixels in form R, G, B
 // inmask is a 16-bit mask where bit (1 << (x + y * 4)) tells whether the corresponding (x,y)
 // pixel is valid or not. Invalid pixel color values are ignored when compressing.
@@ -549,10 +549,11 @@ ushort4 __attribute__((kernel)) root(uint32_t x, uint32_t y)  {
 		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p33,x,y).z;
 		
 		rsDebug("pIn", pIn);
-		rsDebug("mask", rsGetElementAt(mask, x, y));
+		etc1_uint32 amask = *((etc1_uint32 *)rsGetElementAt(mask, x, y));
+		rsDebug("mask",amask);
 		
 		rsDebug("etc1_encode_block call",0);
-		etc1_encode_block (pIn, (etc1_uint32) rsGetElementAt(mask, x, y), pOut);
+		etc1_encode_block (pIn, amask, pOut);
 		
 		rsDebug("pOut[0]",pOut[0]);
 		rsDebug("pOut[1]",pOut[1]);

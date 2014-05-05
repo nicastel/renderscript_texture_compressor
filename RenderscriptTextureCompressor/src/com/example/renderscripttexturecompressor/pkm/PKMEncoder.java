@@ -11,9 +11,8 @@ import android.graphics.BitmapFactory;
 import android.opengl.ETC1;
 import android.opengl.ETC1Util.ETC1Texture;
 import android.support.v8.renderscript.Allocation;
-import android.support.v8.renderscript.RenderScript;
-import android.support.v8.renderscript.Type;
 import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.RenderScript;
 
 import com.example.renderscripttexturecompressor.etc1.JavaETC1;
 import com.example.renderscripttexturecompressor.etc1.RsETC1;
@@ -228,9 +227,17 @@ public class PKMEncoder {
 		script.set_mask(amask);
 		
 		script.forEach_root(aout);
+		
+		
 
-		short[] arrayOut3 = new short[4];
-		aout.copyTo(arrayOut3);
+		short[] arrayOut3Temp = new short[4];
+		aout.copyTo(arrayOut3Temp);
+		
+		Allocation aout2 = Allocation.createSized(rs, Element.U8(rs), 8);
+		aout2.copyFromUnchecked(arrayOut3Temp);
+		
+		byte[] arrayOut3 = new byte[8];
+		aout2.copyTo(arrayOut3);
 		
 		System.out.println("end");
 	}
