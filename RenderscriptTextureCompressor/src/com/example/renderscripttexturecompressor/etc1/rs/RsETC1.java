@@ -127,7 +127,29 @@ public class RsETC1 {
 	private static Allocation p33; // uchar3
 	private static Allocation amask; // uchar3
 	private static Allocation aout; // uchar3
+	
+	//  R, G, B. Byte (3 * (x + 4 * y) is the R value of pixel (x, y)
+	private static byte[] p00t;
+	private static byte[] p01t;
+	private static byte[] p02t;
+	private static byte[] p03t;
 
+	private static byte[] p10t;
+	private static byte[] p11t;
+	private static byte[] p12t;
+	private static byte[] p13t;
+
+	private static byte[] p20t;
+	private static byte[] p21t;
+	private static byte[] p22t;
+	private static byte[] p23t;
+
+	private static byte[] p30t;
+	private static byte[] p31t;
+	private static byte[] p32t;
+	private static byte[] p33t;
+
+	private static int [] inmask;
 	/**
 	 * Encode an entire image. pIn - pointer to the image data. Formatted such
 	 * that the Red component of pixel (x,y) is at pIn + pixelSize * x + stride
@@ -140,6 +162,7 @@ public class RsETC1 {
 		if (pixelSize < 2 || pixelSize > 3) {
 			return -1;
 		}
+		block_number = 0;
 		final long kYMask[] = { 0x0, 0xf, 0xff, 0xfff, 0xffff };
 		final long kXMask[] = { 0x0, 0x1111, 0x3333, 0x7777, 0xffff };
 		byte[] block = new byte[DECODED_BLOCK_SIZE];
@@ -173,6 +196,28 @@ public class RsETC1 {
 		p33 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
 		amask = Allocation.createSized(rs, Element.U32(rs), size);
 		aout = Allocation.createSized(rs, Element.U16_4(rs), size);
+		
+		p00t = new byte[4*size];
+		p01t = new byte[4*size];
+		p02t = new byte[4*size];
+		p03t = new byte[4*size];
+
+		p10t = new byte[4*size];
+		p11t = new byte[4*size];
+		p12t = new byte[4*size];
+		p13t = new byte[4*size];
+
+		p20t = new byte[4*size];
+		p21t = new byte[4*size];
+		p22t = new byte[4*size];
+		p23t = new byte[4*size];
+
+		p30t = new byte[4*size];
+		p31t = new byte[4*size];
+		p32t = new byte[4*size];
+		p33t = new byte[4*size];
+
+		inmask = new int [size];
 		
 		
 		for (int y = 0; y < encodedHeight; y += 4) {
@@ -221,6 +266,8 @@ public class RsETC1 {
 			}
 		}
 		
+		fillAllocation();
+		
 		setAllocation(script);
 		script.forEach_root(aout);
 		
@@ -262,32 +309,57 @@ public class RsETC1 {
 		script.set_mask(amask);
 	}
 
+	private static int block_number = 0;
 	private static void addToInputAllocation(byte[] block, int mask) {
 		// TODO Auto-generated method stub
-		int [] inmask = { mask };
-		amask.copyFrom(inmask);
+		inmask[block_number] = mask;
 		
 		//  R, G, B. Byte (3 * (x + 4 * y) is the R value of pixel (x, y)
-		byte[] p00t = {block[3 * (0 + 4 * 0)], block[3 * (0 + 4 * 0) + 1], block[3 * (0 + 4 * 0) + 2], 0};
-		byte[] p01t = {block[3 * (0 + 4 * 1)], block[3 * (0 + 4 * 1) + 1], block[3 * (0 + 4 * 1) + 2], 0};
-		byte[] p02t = {block[3 * (0 + 4 * 2)], block[3 * (0 + 4 * 2) + 1], block[3 * (0 + 4 * 2) + 2], 0};
-		byte[] p03t = {block[3 * (0 + 4 * 3)], block[3 * (0 + 4 * 3) + 1], block[3 * (0 + 4 * 2) + 3], 0};
+		byte[] p00t_temp = {block[3 * (0 + 4 * 0)], block[3 * (0 + 4 * 0) + 1], block[3 * (0 + 4 * 0) + 2], 0};
+		byte[] p01t_temp = {block[3 * (0 + 4 * 1)], block[3 * (0 + 4 * 1) + 1], block[3 * (0 + 4 * 1) + 2], 0};
+		byte[] p02t_temp = {block[3 * (0 + 4 * 2)], block[3 * (0 + 4 * 2) + 1], block[3 * (0 + 4 * 2) + 2], 0};
+		byte[] p03t_temp = {block[3 * (0 + 4 * 3)], block[3 * (0 + 4 * 3) + 1], block[3 * (0 + 4 * 2) + 3], 0};
 
-		byte[] p10t = {block[3 * (1 + 4 * 0)], block[3 * (1 + 4 * 0) + 1], block[3 * (1 + 4 * 0) + 2], 0};
-		byte[] p11t = {block[3 * (1 + 4 * 1)], block[3 * (1 + 4 * 1) + 1], block[3 * (1 + 4 * 1) + 2], 0};
-		byte[] p12t = {block[3 * (1 + 4 * 2)], block[3 * (1 + 4 * 2) + 1], block[3 * (1 + 4 * 2) + 2], 0};
-		byte[] p13t = {block[3 * (1 + 4 * 3)], block[3 * (1 + 4 * 3) + 1], block[3 * (1 + 4 * 3) + 2], 0};
+		byte[] p10t_temp = {block[3 * (1 + 4 * 0)], block[3 * (1 + 4 * 0) + 1], block[3 * (1 + 4 * 0) + 2], 0};
+		byte[] p11t_temp = {block[3 * (1 + 4 * 1)], block[3 * (1 + 4 * 1) + 1], block[3 * (1 + 4 * 1) + 2], 0};
+		byte[] p12t_temp = {block[3 * (1 + 4 * 2)], block[3 * (1 + 4 * 2) + 1], block[3 * (1 + 4 * 2) + 2], 0};
+		byte[] p13t_temp = {block[3 * (1 + 4 * 3)], block[3 * (1 + 4 * 3) + 1], block[3 * (1 + 4 * 3) + 2], 0};
 
-		byte[] p20t = {block[3 * (2 + 4 * 0)], block[3 * (2 + 4 * 0) + 1], block[3 * (2 + 4 * 0) + 2], 0};
-		byte[] p21t = {block[3 * (2 + 4 * 1)], block[3 * (2 + 4 * 1) + 1], block[3 * (2 + 4 * 1) + 2], 0};
-		byte[] p22t = {block[3 * (2 + 4 * 2)], block[3 * (2 + 4 * 2) + 1], block[3 * (2 + 4 * 2) + 2], 0};
-		byte[] p23t = {block[3 * (2 + 4 * 3)], block[3 * (2 + 4 * 3) + 1], block[3 * (2 + 4 * 3) + 2], 0};
+		byte[] p20t_temp = {block[3 * (2 + 4 * 0)], block[3 * (2 + 4 * 0) + 1], block[3 * (2 + 4 * 0) + 2], 0};
+		byte[] p21t_temp = {block[3 * (2 + 4 * 1)], block[3 * (2 + 4 * 1) + 1], block[3 * (2 + 4 * 1) + 2], 0};
+		byte[] p22t_temp = {block[3 * (2 + 4 * 2)], block[3 * (2 + 4 * 2) + 1], block[3 * (2 + 4 * 2) + 2], 0};
+		byte[] p23t_temp = {block[3 * (2 + 4 * 3)], block[3 * (2 + 4 * 3) + 1], block[3 * (2 + 4 * 3) + 2], 0};
 
-		byte[] p30t = {block[3 * (3 + 4 * 0)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 0) + 2], 0};
-		byte[] p31t = {block[3 * (3 + 4 * 1)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 1) + 2], 0};
-		byte[] p32t = {block[3 * (3 + 4 * 2)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 2) + 2], 0};
-		byte[] p33t = {block[3 * (3 + 4 * 3)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 3) + 2], 0};
+		byte[] p30t_temp = {block[3 * (3 + 4 * 0)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 0) + 2], 0};
+		byte[] p31t_temp = {block[3 * (3 + 4 * 1)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 1) + 2], 0};
+		byte[] p32t_temp = {block[3 * (3 + 4 * 2)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 2) + 2], 0};
+		byte[] p33t_temp = {block[3 * (3 + 4 * 3)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 3) + 2], 0};
+		
+		System.arraycopy(p00t_temp, 0, p00t, block_number * 4, 3);
+		System.arraycopy(p01t_temp, 0, p01t, block_number * 4, 3);
+		System.arraycopy(p02t_temp, 0, p02t, block_number * 4, 3);
+		System.arraycopy(p03t_temp, 0, p03t, block_number * 4, 3);
+		
+		System.arraycopy(p10t_temp, 0, p10t, block_number * 4, 3);
+		System.arraycopy(p11t_temp, 0, p11t, block_number * 4, 3);
+		System.arraycopy(p12t_temp, 0, p12t, block_number * 4, 3);
+		System.arraycopy(p13t_temp, 0, p13t, block_number * 4, 3);
+		
+		System.arraycopy(p20t_temp, 0, p20t, block_number * 4, 3);
+		System.arraycopy(p21t_temp, 0, p21t, block_number * 4, 3);
+		System.arraycopy(p22t_temp, 0, p22t, block_number * 4, 3);
+		System.arraycopy(p23t_temp, 0, p23t, block_number * 4, 3);
 
+		System.arraycopy(p30t_temp, 0, p30t, block_number * 4, 3);
+		System.arraycopy(p31t_temp, 0, p31t, block_number * 4, 3);
+		System.arraycopy(p32t_temp, 0, p32t, block_number * 4, 3);
+		System.arraycopy(p33t_temp, 0, p33t, block_number * 4, 3);
+	}
+	
+	private static void fillAllocation() {
+
+		amask.copyFrom(inmask);
+		
 		p00.copyFrom(p00t);
 		p01.copyFrom(p01t);
 		p02.copyFrom(p02t);

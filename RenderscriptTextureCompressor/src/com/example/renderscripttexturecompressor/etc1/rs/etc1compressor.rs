@@ -429,9 +429,9 @@ void etc1_encode_block(const etc1_byte* pIn, etc1_uint32 inMask, etc1_byte* pOut
     etc_encode_block_helper(pIn, inMask, flippedColors, &b, true);
     take_best(&a, &b);
     
-    rsDebug("a.high",a.high);
-    rsDebug("a.low",a.low);
-    rsDebug("a.score",a.score);
+    //rsDebug("a.high",a.high);
+    //rsDebug("a.low",a.low);
+    //rsDebug("a.score",a.score);
     
     writeBigEndian(pOut, a.high);
     writeBigEndian(pOut + 4, a.low);
@@ -462,7 +462,7 @@ rs_allocation mask; // uint32_t
 // processing of one ETC1 block
 // 6*4*16 bit in -> 4*16 bit out
 ushort4 __attribute__((kernel)) root(uint32_t x, uint32_t y)  {
-		rsDebug("===========root==================",0);
+		//rsDebug("===========root==================",0);
 
 		etc1_byte  pIn [48];
 		etc1_byte  pOut [8];
@@ -553,21 +553,21 @@ ushort4 __attribute__((kernel)) root(uint32_t x, uint32_t y)  {
 		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p33,x,y).y;
 		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p33,x,y).z;
 		
-		rsDebug("pIn", pIn);
+		//rsDebug("pIn", pIn);
 		etc1_uint32 amask = *((etc1_uint32 *)rsGetElementAt(mask, x, y));
-		rsDebug("mask",amask);
+		//rsDebug("mask",amask);
 		
-		rsDebug("etc1_encode_block call",0);
+		//rsDebug("etc1_encode_block call",0);
 		etc1_encode_block (pIn, amask, pOut);
 		
-		rsDebug("pOut[0]",pOut[0]);
-		rsDebug("pOut[1]",pOut[1]);
-		rsDebug("pOut[2]",pOut[2]);
-		rsDebug("pOut[3]",pOut[3]);
-		rsDebug("pOut[4]",pOut[4]);
-		rsDebug("pOut[5]",pOut[5]);
-		rsDebug("pOut[6]",pOut[6]);
-		rsDebug("pOut[7]",pOut[7]);
+		//rsDebug("pOut[0]",pOut[0]);
+		//rsDebug("pOut[1]",pOut[1]);
+		//rsDebug("pOut[2]",pOut[2]);
+		//rsDebug("pOut[3]",pOut[3]);
+		//rsDebug("pOut[4]",pOut[4]);
+		//rsDebug("pOut[5]",pOut[5]);
+		//rsDebug("pOut[6]",pOut[6]);
+		//rsDebug("pOut[7]",pOut[7]);
 		
 		ushort4 out;		
 		out.x = pOut[0] | pOut[1] << 8;
@@ -575,7 +575,7 @@ ushort4 __attribute__((kernel)) root(uint32_t x, uint32_t y)  {
 		out.z = pOut[4] | pOut[5] << 8;
 		out.w = pOut[6] | pOut[7] << 8;
 		
-		rsDebug("out",out);
+		//rsDebug("out",out);
 		
 	 	return out;
 }
