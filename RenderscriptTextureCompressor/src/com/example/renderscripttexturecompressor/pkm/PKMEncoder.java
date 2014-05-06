@@ -14,9 +14,10 @@ import android.opengl.ETC1Util.ETC1Texture;
 
 import com.example.renderscripttexturecompressor.etc1.java.JavaETC1;
 import com.example.renderscripttexturecompressor.etc1.rs.RsETC1;
+import com.example.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 
 public class PKMEncoder {
-	public static ETC1Texture encodeTextureAsETC1(InputStream stream) throws IOException,
+	public static ETC1Texture encodeTextureAsETC1(InputStream stream, ScriptC_etc1compressor script) throws IOException,
 			FileNotFoundException {
 		//stream.reset();
 		//stream.mark(1024);

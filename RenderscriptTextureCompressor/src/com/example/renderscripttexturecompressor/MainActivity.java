@@ -16,32 +16,61 @@ import com.example.renderscripttexturecompressor.bench.etc1.ETC1Benchmarck;
 import com.example.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 
 public class MainActivity extends Activity {
-	
-    private TextView mBenchmarkResult;
-    private RenderScript mRS;
-    private ScriptC_etc1compressor script;
-    
-	public void benchmark(View v) {
-        long t = java.lang.System.currentTimeMillis();
-        ETC1Benchmarck.testRsETC1BlockCompressor(mRS, script);
-		//ETC1Benchmarck.testETC1ImageCompressor(mRS);
-        t = java.lang.System.currentTimeMillis() - t;
-        mBenchmarkResult.setText("Result: " + t + " ms");
-    }
 
+	private TextView mBenchmarkResult;
+	private RenderScript mRS;
+	private ScriptC_etc1compressor script;
+
+	public void benchmark(View v) {
+		long tRs = java.lang.System.currentTimeMillis();
+		for(int i = 0; i<10; i++) {
+			ETC1Benchmarck.testRsETC1BlockCompressor(mRS, script);
+		}		
+		tRs = java.lang.System.currentTimeMillis() - tRs;
+		
+		long tJava = java.lang.System.currentTimeMillis();
+		for(int i = 0; i<10; i++) {
+			ETC1Benchmarck.testJavaETC1BlockCompressor();
+		}		
+		tJava = java.lang.System.currentTimeMillis() - tJava;
+		
+		long tSdk = java.lang.System.currentTimeMillis();
+		for(int i = 0; i<10; i++) {
+			ETC1Benchmarck.testSDKETC1BlockCompressor();
+		}		
+		tSdk = java.lang.System.currentTimeMillis() - tSdk;
+		
+		long tRsImg = java.lang.System.currentTimeMillis();
+		ETC1Benchmarck.testETC1ImageCompressor(mRS, script);		
+		tRsImg = java.lang.System.currentTimeMillis() - tRsImg;
+		
+		long tJavaImg = java.lang.System.currentTimeMillis();
+		ETC1Benchmarck.testETC1ImageCompressor(mRS, script);	
+		tJavaImg = java.lang.System.currentTimeMillis() - tJavaImg;
+		
+		long tSdkImg = java.lang.System.currentTimeMillis();
+		ETC1Benchmarck.testETC1ImageCompressor(mRS, script);	
+		tSdkImg = java.lang.System.currentTimeMillis() - tSdkImg;
+		
+		mBenchmarkResult.setText("Result: \n"
+				+ "1 Block 10*t : Rs " + tRs + " ms " + "Java "+tJava+" ms \n" + "SDK "+tSdk+" ms\n"
+				+ "Image 256*128 : Rs " + tRsImg + " ms " + "Java "+tJavaImg+" ms \n" + "SDK "+tSdkImg+" ms");
+
+		// ETC1Benchmarck.testETC1ImageCompressor(mRS);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-        mBenchmarkResult = (TextView) findViewById(R.id.benchmarkText);
-        mBenchmarkResult.setText("Result: not run");
-		
-		mRS = RenderScript.create(this, ContextType.NORMAL);		
+		mBenchmarkResult = (TextView) findViewById(R.id.benchmarkText);
+		mBenchmarkResult.setText("Result: not run");
+
+		mRS = RenderScript.create(this, ContextType.NORMAL);
 		script = new ScriptC_etc1compressor(mRS);
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -73,7 +102,7 @@ public class MainActivity extends Activity {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_main, container,
+			View rootView = inflater.inflate(R.layout.main, container,
 					false);
 			return rootView;
 		}
