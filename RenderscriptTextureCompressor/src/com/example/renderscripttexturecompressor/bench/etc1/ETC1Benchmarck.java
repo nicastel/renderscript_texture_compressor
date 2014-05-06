@@ -216,16 +216,16 @@ public class ETC1Benchmarck {
             	input = new BufferedInputStream(input);
             
 			ETC1Texture texture = PKMEncoder.encodeTextureAsETC1_Sdk(input);
-			if (texture != null) {
-				int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE
-						+ texture.getHeight() * texture.getWidth() / 2;
-				File f = new File(Environment.getExternalStorageDirectory(),"bmngpkm.pkm");
-				f.delete();
-				f.createNewFile();
-				ETC1Util.writeTexture(texture, new FileOutputStream(f));
-				System.out.println("Texture PKM created ");
-			}		
-			System.out.println("Texture PKM creation failed ");
+//			if (texture != null) {
+//				int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE
+//						+ texture.getHeight() * texture.getWidth() / 2;
+//				File f = new File(Environment.getExternalStorageDirectory(),"bmngpkm.pkm");
+//				f.delete();
+//				f.createNewFile();
+//				ETC1Util.writeTexture(texture, new FileOutputStream(f));
+//				System.out.println("Texture PKM created ");
+//			}		
+//			System.out.println("Texture PKM creation failed ");
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -247,16 +247,16 @@ public class ETC1Benchmarck {
             	input = new BufferedInputStream(input);
             
 			ETC1Texture texture = PKMEncoder.encodeTextureAsETC1_Java(input);
-			if (texture != null) {
-				int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE
-						+ texture.getHeight() * texture.getWidth() / 2;
-				File f = new File(Environment.getExternalStorageDirectory(),"bmngpkm.pkm");
-				f.delete();
-				f.createNewFile();
-				ETC1Util.writeTexture(texture, new FileOutputStream(f));
-				System.out.println("Texture PKM created ");
-			}		
-			System.out.println("Texture PKM creation failed ");
+//			if (texture != null) {
+//				int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE
+//						+ texture.getHeight() * texture.getWidth() / 2;
+//				File f = new File(Environment.getExternalStorageDirectory(),"bmngpkm.pkm");
+//				f.delete();
+//				f.createNewFile();
+//				ETC1Util.writeTexture(texture, new FileOutputStream(f));
+//				System.out.println("Texture PKM created ");
+//			}		
+//			System.out.println("Texture PKM creation failed ");
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -278,16 +278,16 @@ public class ETC1Benchmarck {
             	input = new BufferedInputStream(input);
             
 			ETC1Texture texture = PKMEncoder.encodeTextureAsETC1_Rs(input, rs, script);
-			if (texture != null) {
-				int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE
-						+ texture.getHeight() * texture.getWidth() / 2;
-				File f = new File(Environment.getExternalStorageDirectory(),"bmngpkm.pkm");
-				f.delete();
-				f.createNewFile();
-				ETC1Util.writeTexture(texture, new FileOutputStream(f));
-				System.out.println("Texture PKM created ");
-			}		
-			System.out.println("Texture PKM creation failed ");
+//			if (texture != null) {
+//				int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE
+//						+ texture.getHeight() * texture.getWidth() / 2;
+//				File f = new File(Environment.getExternalStorageDirectory(),"bmngpkm.pkm");
+//				f.delete();
+//				f.createNewFile();
+//				ETC1Util.writeTexture(texture, new FileOutputStream(f));
+//				System.out.println("Texture PKM created ");
+//			}		
+//			System.out.println("Texture PKM creation failed ");
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
