@@ -10,29 +10,38 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.renderscripttexturecompressor.bench.etc1.ETC1Benchmarck;
+import com.example.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 
 public class MainActivity extends Activity {
 	
+    private TextView mBenchmarkResult;
     private RenderScript mRS;
+    private ScriptC_etc1compressor script;
+    
+	public void benchmark(View v) {
+        long t = java.lang.System.currentTimeMillis();
+        ETC1Benchmarck.testRsETC1BlockCompressor(mRS, script);
+		//ETC1Benchmarck.testETC1ImageCompressor(mRS);
+        t = java.lang.System.currentTimeMillis() - t;
+        mBenchmarkResult.setText("Result: " + t + " ms");
+    }
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.main);
 
-		if (savedInstanceState == null) {
-			getFragmentManager().beginTransaction()
-					.add(R.id.container, new PlaceholderFragment()).commit();
-		}
+        mBenchmarkResult = (TextView) findViewById(R.id.benchmarkText);
+        mBenchmarkResult.setText("Result: not run");
 		
-		mRS = RenderScript.create(this, ContextType.DEBUG);
-		
-		ETC1Benchmarck.testETC1BlockCompressors(mRS);
-		ETC1Benchmarck.testETC1ImageCompressor(mRS);
+		mRS = RenderScript.create(this, ContextType.NORMAL);		
+		script = new ScriptC_etc1compressor(mRS);
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 

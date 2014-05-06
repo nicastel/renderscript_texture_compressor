@@ -17,7 +17,7 @@ import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.Element;
 import android.support.v8.renderscript.RenderScript;
 
-import com.example.renderscripttexturecompressor.etc1.ScriptC_etc1compressor;
+import com.example.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 import com.example.renderscripttexturecompressor.etc1.java.JavaETC1;
 import com.example.renderscripttexturecompressor.pkm.PKMEncoder;
 
@@ -53,8 +53,10 @@ public class ETC1Benchmarck {
 		}
 	}
 	
-	public static void testETC1BlockCompressors (RenderScript rs) {
-		// Test android class (reference)
+	private final static int mask = 8;
+	
+	public static void testSDKETC1BlockCompressor () {
+		// Test android class block (reference)
 		byte[] in1 = {  6, 5, 7,
 						7, 6, 5,
 						9, 2, 1,
@@ -77,15 +79,17 @@ public class ETC1Benchmarck {
 		ByteBuffer out = ByteBuffer.allocateDirect(8).order(
 				ByteOrder.nativeOrder());
 
-		int mask = 8;
+		
 		inb.rewind();
 		ETC1.encodeBlock(inb, mask, out);
 		inb.rewind();
 
 		byte[] arrayOut1 = new byte[8];
 		out.get(arrayOut1);
-		
-		// Test java class
+	}
+	
+	public static void testJavaETC1BlockCompressor () {
+		// Test pure java block compressor
 		short[] in2 = {  6, 5, 7,
 				7, 6, 5,
 				9, 2, 1,
@@ -105,10 +109,11 @@ public class ETC1Benchmarck {
 		
 		byte[] arrayOut2 = new byte[8];
 
-		JavaETC1.encodeBlock(in2, mask, arrayOut2);		
-			
-		// Test RenderScript script
-		
+		JavaETC1.encodeBlock(in2, mask, arrayOut2);	
+	}
+	
+	public static void testRsETC1BlockCompressor (RenderScript rs, ScriptC_etc1compressor script) {			
+		// Test RenderScript block compressor		
 		byte[] in3 = {  6, 5, 7,
 				7, 6, 5,
 				9, 2, 1,
@@ -194,8 +199,6 @@ public class ETC1Benchmarck {
 		
 		Allocation aout = Allocation.createSized(rs, Element.U16_4(rs), 1);
 		
-		ScriptC_etc1compressor script = new ScriptC_etc1compressor(rs);
-		
 		script.set_p00(p00);
 		script.set_p01(p01);
 		script.set_p02(p02);
@@ -230,7 +233,5 @@ public class ETC1Benchmarck {
 		
 		byte[] arrayOut3 = new byte[8];
 		aout2.copyTo(arrayOut3);
-		
-		System.out.println("end");
 	}
 }

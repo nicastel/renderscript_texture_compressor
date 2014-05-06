@@ -2,7 +2,7 @@ package com.example.renderscripttexturecompressor.etc1.rs;
 
 import java.nio.ByteBuffer;
 
-import com.example.renderscripttexturecompressor.etc1.ScriptC_etc1compressor;
+import com.example.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 
 import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.Allocation;
