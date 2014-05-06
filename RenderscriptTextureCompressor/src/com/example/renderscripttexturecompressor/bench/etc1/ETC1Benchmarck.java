@@ -204,7 +204,7 @@ public class ETC1Benchmarck {
 		aout2.copyTo(arrayOut3);
 	}
 	
-	public static void testETC1ImageCompressor (RenderScript rs, ScriptC_etc1compressor script) {
+	public static void testSDKETC1ImageCompressor () {
 		InputStream input;
 		try {
 			input = PKMEncoder.class.getResourceAsStream("/testdata/world.topo.bathy.200405.3x256x128.jpg");
@@ -215,7 +215,69 @@ public class ETC1Benchmarck {
             if (!(input instanceof BufferedInputStream))
             	input = new BufferedInputStream(input);
             
-			ETC1Texture texture = PKMEncoder.encodeTextureAsETC1(input, script);
+			ETC1Texture texture = PKMEncoder.encodeTextureAsETC1_Sdk(input);
+			if (texture != null) {
+				int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE
+						+ texture.getHeight() * texture.getWidth() / 2;
+				File f = new File(Environment.getExternalStorageDirectory(),"bmngpkm.pkm");
+				f.delete();
+				f.createNewFile();
+				ETC1Util.writeTexture(texture, new FileOutputStream(f));
+				System.out.println("Texture PKM created ");
+			}		
+			System.out.println("Texture PKM creation failed ");
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static void testJavaETC1ImageCompressor () {
+		InputStream input;
+		try {
+			input = PKMEncoder.class.getResourceAsStream("/testdata/world.topo.bathy.200405.3x256x128.jpg");
+			
+            // Wrap the stream in a BufferedInputStream to provide the mark/reset capability required to
+            // avoid destroying the stream when it is read more than once. BufferedInputStream also improves
+            // file read performance.
+            if (!(input instanceof BufferedInputStream))
+            	input = new BufferedInputStream(input);
+            
+			ETC1Texture texture = PKMEncoder.encodeTextureAsETC1_Java(input);
+			if (texture != null) {
+				int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE
+						+ texture.getHeight() * texture.getWidth() / 2;
+				File f = new File(Environment.getExternalStorageDirectory(),"bmngpkm.pkm");
+				f.delete();
+				f.createNewFile();
+				ETC1Util.writeTexture(texture, new FileOutputStream(f));
+				System.out.println("Texture PKM created ");
+			}		
+			System.out.println("Texture PKM creation failed ");
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static void testRsETC1ImageCompressor (RenderScript rs, ScriptC_etc1compressor script) {
+		InputStream input;
+		try {
+			input = PKMEncoder.class.getResourceAsStream("/testdata/world.topo.bathy.200405.3x256x128.jpg");
+			
+            // Wrap the stream in a BufferedInputStream to provide the mark/reset capability required to
+            // avoid destroying the stream when it is read more than once. BufferedInputStream also improves
+            // file read performance.
+            if (!(input instanceof BufferedInputStream))
+            	input = new BufferedInputStream(input);
+            
+			ETC1Texture texture = PKMEncoder.encodeTextureAsETC1_Rs(input, rs, script);
 			if (texture != null) {
 				int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE
 						+ texture.getHeight() * texture.getWidth() / 2;

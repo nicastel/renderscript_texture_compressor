@@ -177,7 +177,7 @@ public class RsETC1Util {
      * @param stride the width of a line of the image in bytes
      * @return the ETC1 texture.
      */
-    public static ETC1Texture compressTexture(RenderScript rs, Buffer input, int width, int height, int pixelSize, int stride){
+    public static ETC1Texture compressTexture(RenderScript rs, ScriptC_etc1compressor script, Buffer input, int width, int height, int pixelSize, int stride){
         int encodedImageSize = RsETC1.getEncodedDataSize(width, height);
         System.out.println("encodedImageSize : "+encodedImageSize);
         ByteBuffer compressedImage = ByteBuffer.allocateDirect(encodedImageSize).
@@ -185,7 +185,7 @@ public class RsETC1Util {
         
         // TODO : there is a bug in the android sdk :
         // ETC1.encodeImage((ByteBuffer) input, width, height, 3, stride, compressedImage); should be
-        RsETC1.encodeImage(rs, (ByteBuffer) input, width, height, pixelSize, stride, compressedImage);
+        RsETC1.encodeImage(rs, script, (ByteBuffer) input, width, height, pixelSize, stride, compressedImage);
         
         compressedImage.position(0);
         return new ETC1Texture(width, height, compressedImage);

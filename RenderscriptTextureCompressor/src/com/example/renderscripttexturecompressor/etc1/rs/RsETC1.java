@@ -133,8 +133,9 @@ public class RsETC1 {
 	 * that the Red component of pixel (x,y) is at pIn + pixelSize * x + stride
 	 * * y + redOffset; pOut - pointer to encoded data. Must be large enough to
 	 * store entire encoded image.
+	 * @param script 
 	 */
-	public static int encodeImage(RenderScript rs, ByteBuffer pIn, int width, int height,
+	public static int encodeImage(RenderScript rs, ScriptC_etc1compressor script, ByteBuffer pIn, int width, int height,
 			int pixelSize, int stride, ByteBuffer compressedImage) {
 		if (pixelSize < 2 || pixelSize > 3) {
 			return -1;
@@ -172,6 +173,7 @@ public class RsETC1 {
 		p33 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
 		amask = Allocation.createSized(rs, Element.U32(rs), size);
 		aout = Allocation.createSized(rs, Element.U16_4(rs), size);
+		
 		
 		for (int y = 0; y < encodedHeight; y += 4) {
 			int yEnd = height - y;
@@ -219,7 +221,6 @@ public class RsETC1 {
 			}
 		}
 		
-		ScriptC_etc1compressor script = new ScriptC_etc1compressor(rs);
 		setAllocation(script);
 		script.forEach_root(aout);
 		

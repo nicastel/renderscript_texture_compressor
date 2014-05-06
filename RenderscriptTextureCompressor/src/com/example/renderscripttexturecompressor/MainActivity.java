@@ -41,22 +41,22 @@ public class MainActivity extends Activity {
 		tSdk = java.lang.System.currentTimeMillis() - tSdk;
 		
 		long tRsImg = java.lang.System.currentTimeMillis();
-		ETC1Benchmarck.testETC1ImageCompressor(mRS, script);		
+		// TODO : some bugs are still present in the java side
+		//ETC1Benchmarck.testRsETC1ImageCompressor(mRS, script);		
 		tRsImg = java.lang.System.currentTimeMillis() - tRsImg;
 		
 		long tJavaImg = java.lang.System.currentTimeMillis();
-		ETC1Benchmarck.testETC1ImageCompressor(mRS, script);	
+		ETC1Benchmarck.testJavaETC1ImageCompressor();	
 		tJavaImg = java.lang.System.currentTimeMillis() - tJavaImg;
 		
 		long tSdkImg = java.lang.System.currentTimeMillis();
-		ETC1Benchmarck.testETC1ImageCompressor(mRS, script);	
+		ETC1Benchmarck.testSDKETC1ImageCompressor();
 		tSdkImg = java.lang.System.currentTimeMillis() - tSdkImg;
 		
 		mBenchmarkResult.setText("Result: \n"
 				+ "1 Block 10*t : Rs " + tRs + " ms " + "Java "+tJava+" ms \n" + "SDK "+tSdk+" ms\n"
 				+ "Image 256*128 : Rs " + tRsImg + " ms " + "Java "+tJavaImg+" ms \n" + "SDK "+tSdkImg+" ms");
 
-		// ETC1Benchmarck.testETC1ImageCompressor(mRS);
 	}
 
 	@Override
