@@ -1,4 +1,4 @@
-package com.example.renderscripttexturecompressor.etc1;
+package com.example.renderscripttexturecompressor.etc1.java;
 
 import java.nio.ByteBuffer;
 

@@ -1,6 +1,12 @@
-package com.example.renderscripttexturecompressor.etc1;
+package com.example.renderscripttexturecompressor.etc1.rs;
 
 import java.nio.ByteBuffer;
+
+import com.example.renderscripttexturecompressor.etc1.ScriptC_etc1compressor;
+
+import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Element;
 
 public class RsETC1 {
 	// Copyright 2009 Google Inc.
@@ -99,6 +105,28 @@ public class RsETC1 {
 	public static int getEncodedDataSize(int width, int height) {
 		return (((width + 3) & ~3) * ((height + 3) & ~3)) >> 1;
 	}
+	
+	private static Allocation p00; // uchar3
+	private static Allocation p01; // uchar3
+	private static Allocation p02; // uchar3
+	private static Allocation p03; // uchar3
+
+	private static Allocation p10; // uchar3
+	private static Allocation p11; // uchar3
+	private static Allocation p12; // uchar3
+	private static Allocation p13; // uchar3
+
+	private static Allocation p20; // uchar3
+	private static Allocation p21; // uchar3
+	private static Allocation p22; // uchar3
+	private static Allocation p23; // uchar3
+
+	private static Allocation p30; // uchar3
+	private static Allocation p31; // uchar3
+	private static Allocation p32; // uchar3
+	private static Allocation p33; // uchar3
+	private static Allocation amask; // uchar3
+	private static Allocation aout; // uchar3
 
 	/**
 	 * Encode an entire image. pIn - pointer to the image data. Formatted such
@@ -106,21 +134,45 @@ public class RsETC1 {
 	 * * y + redOffset; pOut - pointer to encoded data. Must be large enough to
 	 * store entire encoded image.
 	 */
-	public static int encodeImage(ByteBuffer pIn, int width, int height,
+	public static int encodeImage(RenderScript rs, ByteBuffer pIn, int width, int height,
 			int pixelSize, int stride, ByteBuffer compressedImage) {
 		if (pixelSize < 2 || pixelSize > 3) {
 			return -1;
 		}
 		final long kYMask[] = { 0x0, 0xf, 0xff, 0xfff, 0xffff };
 		final long kXMask[] = { 0x0, 0x1111, 0x3333, 0x7777, 0xffff };
-		short[] block = new short[DECODED_BLOCK_SIZE];
-		byte[] encoded = new byte[ENCODED_BLOCK_SIZE];
+		byte[] block = new byte[DECODED_BLOCK_SIZE];
 
+		// TODO check the ~3
 		int encodedWidth = (width + 3) & ~3;
 		int encodedHeight = (height + 3) & ~3;
 
 		// int iOut = 0;
+		
+		int size = width * height / (DECODED_BLOCK_SIZE / 3);
 
+		p00 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+		p01 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+		p02 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+		p03 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+
+		p10 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+		p11 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+		p12 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+		p13 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+
+		p20 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+		p21 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+		p22 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+		p23 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+
+		p30 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+		p31 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+		p32 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+		p33 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+		amask = Allocation.createSized(rs, Element.U32(rs), size);
+		aout = Allocation.createSized(rs, Element.U16_4(rs), size);
+		
 		for (int y = 0; y < encodedHeight; y += 4) {
 			int yEnd = height - y;
 			if (yEnd > 4) {
@@ -132,7 +184,7 @@ public class RsETC1 {
 				if (xEnd > 4) {
 					xEnd = 4;
 				}
-				long mask = ymask & kXMask[xEnd];
+				int mask = (int) (ymask & kXMask[xEnd]);
 				for (int cy = 0; cy < yEnd; cy++) {
 					int q = (cy * 4) * 3;
 					int p = pixelSize * x + stride * (y + cy);
@@ -140,9 +192,9 @@ public class RsETC1 {
 						for (int cx = 0; cx < xEnd; cx++) {
 							long pixel = (pIn.get(p + 2) << 16)
 									| (pIn.get(p + 1) << 8) | pIn.get(p);
-							block[q++] = (short) ((pixel >> 16) & 0xFF);
-							block[q++] = (short) ((pixel >> 8) & 0xFF);
-							block[q++] = (short) (pixel & 0xFF);
+							block[q++] = (byte) ((pixel >> 16) & 0xFF);
+							block[q++] = (byte) ((pixel >> 8) & 0xFF);
+							block[q++] = (byte) (pixel & 0xFF);
 							p += pixelSize;
 						}
 						// pIn.position(p);
@@ -153,22 +205,107 @@ public class RsETC1 {
 							short p1 = pIn.get(p + 1);
 							short p2 = pIn.get(p);
 							long pixel = (p1 << 8) | p2;
-							block[q++] = (short) convert5To8(pixel >> 11);
-							block[q++] = (short) convert6To8(pixel >> 5);
-							block[q++] = (short) convert5To8(pixel);
+							block[q++] = (byte) convert5To8(pixel >> 11);
+							block[q++] = (byte) convert6To8(pixel >> 5);
+							block[q++] = (byte) convert5To8(pixel);
 							p += pixelSize;
 						}
 					}
 				}
-				JavaETC1.encodeBlock(block, mask, encoded);
-				compressedImage.put(encoded);
+				addToInputAllocation(block, mask);
 				// System.arraycopy(encoded, 0, compressedImage, iOut,
 				// encoded.length);
 				// iOut += encoded.length;
 			}
 		}
+		
+		ScriptC_etc1compressor script = new ScriptC_etc1compressor(rs);
+		setAllocation(script);
+		script.forEach_root(aout);
+		
+		short[] arrayOut3Temp = new short[4*size];
+		aout.copyTo(arrayOut3Temp);
+		
+		Allocation aout2 = Allocation.createSized(rs, Element.U8(rs), 8*size);
+		aout2.copyFromUnchecked(arrayOut3Temp);
+		
+		byte[] encoded = new byte[8*size];
+		aout2.copyTo(encoded);		
+		compressedImage.put(encoded);
+		
 		compressedImage.position(0);
 		return 0;
+	}
+
+	private static void setAllocation(ScriptC_etc1compressor script) {
+		script.set_p00(p00);
+		script.set_p01(p01);
+		script.set_p02(p02);
+		script.set_p03(p03);
+		
+		script.set_p10(p10);
+		script.set_p11(p11);
+		script.set_p12(p12);
+		script.set_p13(p13);
+		
+		script.set_p20(p20);
+		script.set_p21(p21);
+		script.set_p22(p22);
+		script.set_p23(p23);
+		
+		script.set_p30(p30);
+		script.set_p31(p31);
+		script.set_p32(p32);
+		script.set_p33(p33);
+		
+		script.set_mask(amask);
+	}
+
+	private static void addToInputAllocation(byte[] block, int mask) {
+		// TODO Auto-generated method stub
+		int [] inmask = { mask };
+		amask.copyFrom(inmask);
+		
+		//  R, G, B. Byte (3 * (x + 4 * y) is the R value of pixel (x, y)
+		byte[] p00t = {block[3 * (0 + 4 * 0)], block[3 * (0 + 4 * 0) + 1], block[3 * (0 + 4 * 0) + 2], 0};
+		byte[] p01t = {block[3 * (0 + 4 * 1)], block[3 * (0 + 4 * 1) + 1], block[3 * (0 + 4 * 1) + 2], 0};
+		byte[] p02t = {block[3 * (0 + 4 * 2)], block[3 * (0 + 4 * 2) + 1], block[3 * (0 + 4 * 2) + 2], 0};
+		byte[] p03t = {block[3 * (0 + 4 * 3)], block[3 * (0 + 4 * 3) + 1], block[3 * (0 + 4 * 2) + 3], 0};
+
+		byte[] p10t = {block[3 * (1 + 4 * 0)], block[3 * (1 + 4 * 0) + 1], block[3 * (1 + 4 * 0) + 2], 0};
+		byte[] p11t = {block[3 * (1 + 4 * 1)], block[3 * (1 + 4 * 1) + 1], block[3 * (1 + 4 * 1) + 2], 0};
+		byte[] p12t = {block[3 * (1 + 4 * 2)], block[3 * (1 + 4 * 2) + 1], block[3 * (1 + 4 * 2) + 2], 0};
+		byte[] p13t = {block[3 * (1 + 4 * 3)], block[3 * (1 + 4 * 3) + 1], block[3 * (1 + 4 * 3) + 2], 0};
+
+		byte[] p20t = {block[3 * (2 + 4 * 0)], block[3 * (2 + 4 * 0) + 1], block[3 * (2 + 4 * 0) + 2], 0};
+		byte[] p21t = {block[3 * (2 + 4 * 1)], block[3 * (2 + 4 * 1) + 1], block[3 * (2 + 4 * 1) + 2], 0};
+		byte[] p22t = {block[3 * (2 + 4 * 2)], block[3 * (2 + 4 * 2) + 1], block[3 * (2 + 4 * 2) + 2], 0};
+		byte[] p23t = {block[3 * (2 + 4 * 3)], block[3 * (2 + 4 * 3) + 1], block[3 * (2 + 4 * 3) + 2], 0};
+
+		byte[] p30t = {block[3 * (3 + 4 * 0)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 0) + 2], 0};
+		byte[] p31t = {block[3 * (3 + 4 * 1)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 1) + 2], 0};
+		byte[] p32t = {block[3 * (3 + 4 * 2)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 2) + 2], 0};
+		byte[] p33t = {block[3 * (3 + 4 * 3)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 3) + 2], 0};
+
+		p00.copyFrom(p00t);
+		p01.copyFrom(p01t);
+		p02.copyFrom(p02t);
+		p03.copyFrom(p03t);
+
+		p10.copyFrom(p10t);
+		p11.copyFrom(p11t);
+		p12.copyFrom(p12t);
+		p13.copyFrom(p13t);
+
+		p20.copyFrom(p20t);
+		p21.copyFrom(p21t);
+		p22.copyFrom(p22t);
+		p23.copyFrom(p23t);
+
+		p30.copyFrom(p30t);
+		p31.copyFrom(p31t);
+		p32.copyFrom(p32t);
+		p33.copyFrom(p33t);
 	}
 
 	static final byte kMagic[] = { 'P', 'K', 'M', ' ', '1', '0' };

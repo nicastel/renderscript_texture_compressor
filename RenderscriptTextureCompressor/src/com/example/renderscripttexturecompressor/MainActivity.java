@@ -11,7 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.renderscripttexturecompressor.pkm.PKMEncoder;
+import com.example.renderscripttexturecompressor.bench.etc1.ETC1Benchmarck;
 
 public class MainActivity extends Activity {
 	
@@ -29,8 +29,8 @@ public class MainActivity extends Activity {
 		
 		mRS = RenderScript.create(this, ContextType.DEBUG);
 		
-		PKMEncoder.testETC1BlockCompressors(mRS);
-		PKMEncoder.testETC1ImageCompressor(mRS);
+		ETC1Benchmarck.testETC1BlockCompressors(mRS);
+		ETC1Benchmarck.testETC1ImageCompressor(mRS);
 	}
 
 	@Override
