@@ -40,6 +40,8 @@ public class MainActivity extends Activity {
 		}		
 		tSdk = java.lang.System.currentTimeMillis() - tSdk;
 		
+		ETC1Benchmarck.initBuffer();
+		
 		long tRsImg = java.lang.System.currentTimeMillis();
 		// TODO : some bugs are still present in the java side
 		//ETC1Benchmarck.testRsETC1ImageCompressor(mRS, script);		
