@@ -220,7 +220,7 @@ public class ETC1Benchmarck {
 		}
 	}
 
-	public static void testSDKETC1ImageCompressor() {
+	public static ETC1Texture testSDKETC1ImageCompressor() {
 
 		// RGB_565 is 2 bytes per pixel
 		ETC1.encodeImage(buffer, bitmap.getWidth(), bitmap.getHeight(), 2,
@@ -229,7 +229,8 @@ public class ETC1Benchmarck {
 		ETC1Texture texture = new ETC1Texture(bitmap.getWidth(),
 				bitmap.getHeight(), compressedImage);
 
-		buffer.rewind();
+		buffer.rewind();		
+		
 		// if (texture != null) {
 		// int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE
 		// + texture.getHeight() * texture.getWidth() / 2;
@@ -241,10 +242,11 @@ public class ETC1Benchmarck {
 		// System.out.println("Texture PKM created ");
 		// }
 		// System.out.println("Texture PKM creation failed ");
-
+		
+		return texture;
 	}
 
-	public static void testJavaETC1ImageCompressor() {
+	public static ETC1Texture testJavaETC1ImageCompressor() {
 		// RGB_565 is 2 bytes per pixel
 		JavaETC1.encodeImage(buffer, bitmap.getWidth(), bitmap.getHeight(), 2,
 				2 * bitmap.getWidth(), compressedImage);
@@ -264,9 +266,11 @@ public class ETC1Benchmarck {
 		// System.out.println("Texture PKM created ");
 		// }
 		// System.out.println("Texture PKM creation failed ");
+		
+		return texture;
 	}
 
-	public static void testRsETC1ImageCompressor(RenderScript rs,
+	public static ETC1Texture testRsETC1ImageCompressor(RenderScript rs,
 			ScriptC_etc1compressor script) {
 		// RGB_565 is 2 bytes per pixel
 		RsETC1.encodeImage(rs, script, buffer, bitmap.getWidth(), bitmap.getHeight(), 2,
@@ -287,5 +291,7 @@ public class ETC1Benchmarck {
 		// System.out.println("Texture PKM created ");
 		// }
 		// System.out.println("Texture PKM creation failed ");
+		
+		return texture;
 	}
 }

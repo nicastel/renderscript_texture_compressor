@@ -1,7 +1,15 @@
 package com.example.renderscripttexturecompressor;
 
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 import android.app.Activity;
 import android.app.Fragment;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.opengl.ETC1;
+import android.opengl.ETC1Util.ETC1Texture;
 import android.os.Bundle;
 import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.RenderScript.ContextType;
@@ -10,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.renderscripttexturecompressor.bench.etc1.ETC1Benchmarck;
@@ -20,6 +29,8 @@ public class MainActivity extends Activity {
 	private TextView mBenchmarkResult;
 	private RenderScript mRS;
 	private ScriptC_etc1compressor script;
+    private ImageView mDisplayView;
+    private Bitmap mBitmapOut;
 
 	public void benchmark(View v) {
 		long tRs = java.lang.System.currentTimeMillis();
@@ -59,6 +70,34 @@ public class MainActivity extends Activity {
 				+ "Image 256*128 : Rs " + tRsImg + " ms " + "Java "+tJavaImg+" ms \n" + "SDK "+tSdkImg+" ms");
 
 	}
+	
+	public void display_sdk(View v) {
+		showEtc1Texture(ETC1Benchmarck.testSDKETC1ImageCompressor());
+	}
+	
+	public void display_java(View v) {
+		showEtc1Texture(ETC1Benchmarck.testJavaETC1ImageCompressor());
+	}
+	
+	public void display_rs(View v) {
+		showEtc1Texture(ETC1Benchmarck.testRsETC1ImageCompressor(mRS, script));
+	}
+	
+	public void showEtc1Texture(ETC1Texture texture) {
+		int width = texture.getWidth();
+        int height = texture.getHeight();
+        Buffer data = texture.getData();
+		
+		int pixelSize = 2;
+        int stride = pixelSize * width;
+        ByteBuffer decodedData = ByteBuffer.allocateDirect(stride*height)
+            .order(ByteOrder.nativeOrder());
+        ETC1.decodeImage((ByteBuffer) data, decodedData, width, height, pixelSize, stride);
+        mBitmapOut.copyPixelsFromBuffer(decodedData);
+        mDisplayView.invalidate();
+	}
+	
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +106,13 @@ public class MainActivity extends Activity {
 
 		mBenchmarkResult = (TextView) findViewById(R.id.benchmarkText);
 		mBenchmarkResult.setText("Result: not run");
+		
+        mBitmapOut = Bitmap.createBitmap(256, 128, Config.RGB_565);
+		
+	    mDisplayView = (ImageView) findViewById(R.id.display);
+        mDisplayView.setImageBitmap(mBitmapOut);
+        
+        ETC1Benchmarck.initBuffer();
 
 		mRS = RenderScript.create(this, ContextType.NORMAL);
 		script = new ScriptC_etc1compressor(mRS);

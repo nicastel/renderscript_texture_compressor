@@ -30,10 +30,6 @@
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
-            <ImageView
-                android:id="@+id/display"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
             <LinearLayout 
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
@@ -50,6 +46,30 @@
                         android:layout_height="wrap_content"
                         android:textSize="8pt"
                         android:text="@string/saturation"/>
+            <LinearLayout 
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+                   <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/display_sdk"
+                        android:onClick="display_sdk"/>   
+                   <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/display_java"
+                        android:onClick="display_java"/>   
+                   <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/display_rs"
+                        android:onClick="display_rs"/>   
+                </LinearLayout>          
+                <ImageView
+	                android:id="@+id/display"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content" />            	  
             </LinearLayout>
     </ScrollView>
 </LinearLayout>
