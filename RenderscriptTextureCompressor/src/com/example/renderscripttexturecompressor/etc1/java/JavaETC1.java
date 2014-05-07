@@ -38,7 +38,7 @@ public class JavaETC1 {
 	*/
 	public static final int ETC1_RGB8_OES = 0x8D64;
 	
-	short etc1_byte;
+	/*unsigned*/ short etc1_byte;
 	int etc1_bool;
 	/*unsigned*/ long etc1_uint32;
 
@@ -193,13 +193,13 @@ public class JavaETC1 {
 	static
 	int convert8To4(int b) {
 	    int c = b & 0xff;
-	    return divideBy255(b * 15);
+	    return divideBy255(c * 15);
 	}
 
 	static
 	int convert8To5(int b) {
 	    int c = b & 0xff;
-	    return divideBy255(b * 31);
+	    return divideBy255(c * 31);
 	}
 
 	static
@@ -242,8 +242,8 @@ public class JavaETC1 {
 	// Input is an ETC1 compressed version of the data.
 	// Output is a 4 x 4 square of 3-byte pixels in form R, G, B
 	static void etc1_decode_block(ByteBuffer data, byte[]  pOut) {
-	    long high = (data.get() << 24) | (data.get() << 16) | (data.get() << 8) | data.get();
-	    long low = (data.get() << 24) | (data.get() << 16) | (data.get() << 8) | data.get();
+	    long high = ((data.get() << 24) | (data.get() << 16) | (data.get() << 8) | data.get()) & 0xffffffff;
+	    long low = (data.get() << 24) | (data.get() << 16) | (data.get() << 8) | data.get() & 0xffffffff;
 	    int r1, r2, g1, g2, b1, b2;
 	    if ((high & 2)>0) {
 	        // differential
@@ -611,11 +611,11 @@ public class JavaETC1 {
 	                	//System.arraycopy(pIn, p, block, q, xEnd * 3);
 	                } else {
 	                    for (int cx = 0; cx < xEnd; cx++) {
-	                    	short p1 = pIn.get(p+1);
-	                    	short p2 = pIn.get(p);
-	                    	long pixel = (p1 << 8) | p2;
-	                        block[q++] = (short) convert5To8(pixel >> 11);
-	                        block[q++] = (short) convert6To8(pixel >> 5);
+	                    	int p1 = pIn.get(p+1) & 0xFF;
+	                    	int p2 = pIn.get(p) & 0xFF;
+	                    	int pixel = (p1 << 8) | p2;
+	                        block[q++] = (short) convert5To8(pixel >>> 11);
+	                        block[q++] = (short) convert6To8(pixel >>> 5);
 	                        block[q++] = (short) convert5To8(pixel);
 	                        p += pixelSize;
 	                    }
