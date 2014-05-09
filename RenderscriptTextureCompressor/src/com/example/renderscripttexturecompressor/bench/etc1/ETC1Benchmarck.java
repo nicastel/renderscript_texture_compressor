@@ -26,7 +26,7 @@ public class ETC1Benchmarck {
 	private static Bitmap bitmap;
 	private static ByteBuffer buffer;
 
-	public static void testSDKETC1BlockCompressor() {
+	public static byte[] testSDKETC1BlockCompressor() {
 		// Test android class block (reference)
 		byte[] in1 = { 6, 5, 7, 7, 6, 5, 9, 2, 1, 20, 5, 80, 75, 24, 96, 64,
 				27, 43, 45, 78, 21, 2, 85, 32, 9, 5, 7, 7, 6, 5, 9, 2, 1, 85,
@@ -43,20 +43,24 @@ public class ETC1Benchmarck {
 
 		byte[] arrayOut1 = new byte[8];
 		out.get(arrayOut1);
+		
+		return arrayOut1;
 	}
 
-	public static void testJavaETC1BlockCompressor() {
+	public static byte[] testJavaETC1BlockCompressor() {
 		// Test pure java block compressor
-		short[] in2 = { 6, 5, 7, 7, 6, 5, 9, 2, 1, 20, 5, 80, 75, 24, 96, 64,
+		byte[] in2 = { 6, 5, 7, 7, 6, 5, 9, 2, 1, 20, 5, 80, 75, 24, 96, 64,
 				27, 43, 45, 78, 21, 2, 85, 32, 9, 5, 7, 7, 6, 5, 9, 2, 1, 85,
 				5, 80, 75, 3, 96, 64, 4, 43, 45, 78, 21, 2, 7, 32 };
 
 		byte[] arrayOut2 = new byte[8];
 
 		JavaETC1.encodeBlock(in2, mask, arrayOut2);
+		
+		return arrayOut2;
 	}
 
-	public static void testRsETC1BlockCompressor(RenderScript rs,
+	public static byte[] testRsETC1BlockCompressor(RenderScript rs,
 			ScriptC_etc1compressor script) {
 		// Test RenderScript block compressor
 		byte[] in3 = { 6, 5, 7, 7, 6, 5, 9, 2, 1, 20, 5, 80, 75, 24, 96, 64,
@@ -178,10 +182,13 @@ public class ETC1Benchmarck {
 
 		byte[] arrayOut3 = new byte[8];
 		aout2.copyTo(arrayOut3);
+		
+		return arrayOut3;
 	}
 
 	public static void initBuffer() {
 		InputStream input = PKMEncoder.class
+				//.getResourceAsStream("/testdata/block.jpg");
 				.getResourceAsStream("/testdata/world.topo.bathy.200405.3x256x128.jpg");
 		// Wrap the stream in a BufferedInputStream to provide the
 		// mark/reset capability required to

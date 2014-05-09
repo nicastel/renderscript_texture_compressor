@@ -54,15 +54,15 @@ public class MainActivity extends Activity {
 		ETC1Benchmarck.initBuffer();
 		
 		long tRsImg = java.lang.System.currentTimeMillis();
-		ETC1Benchmarck.testRsETC1ImageCompressor(mRS, script);		
+		ETC1Texture texture = ETC1Benchmarck.testRsETC1ImageCompressor(mRS, script);		
 		tRsImg = java.lang.System.currentTimeMillis() - tRsImg;
 		
 		long tJavaImg = java.lang.System.currentTimeMillis();
-		ETC1Benchmarck.testJavaETC1ImageCompressor();	
+		ETC1Texture texture1 = ETC1Benchmarck.testJavaETC1ImageCompressor();	
 		tJavaImg = java.lang.System.currentTimeMillis() - tJavaImg;
 		
 		long tSdkImg = java.lang.System.currentTimeMillis();
-		ETC1Benchmarck.testSDKETC1ImageCompressor();
+		ETC1Texture texture2 = ETC1Benchmarck.testSDKETC1ImageCompressor();
 		tSdkImg = java.lang.System.currentTimeMillis() - tSdkImg;
 		
 		mBenchmarkResult.setText("Result: \n"
