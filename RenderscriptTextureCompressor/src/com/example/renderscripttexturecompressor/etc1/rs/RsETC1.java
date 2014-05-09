@@ -163,8 +163,8 @@ public class RsETC1 {
 			return -1;
 		}
 		block_number = 0;
-		final long kYMask[] = { 0x0, 0xf, 0xff, 0xfff, 0xffff };
-		final long kXMask[] = { 0x0, 0x1111, 0x3333, 0x7777, 0xffff };
+		final int kYMask[] = { 0x0, 0xf, 0xff, 0xfff, 0xffff };
+		final int kXMask[] = { 0x0, 0x1111, 0x3333, 0x7777, 0xffff };
 		byte[] block = new byte[DECODED_BLOCK_SIZE];
 
 		// TODO check the ~3
@@ -225,20 +225,19 @@ public class RsETC1 {
 			if (yEnd > 4) {
 				yEnd = 4;
 			}
-			long ymask = kYMask[yEnd];
+			int ymask = kYMask[yEnd];
 			for (int x = 0; x < encodedWidth; x += 4) {
 				int xEnd = width - x;
 				if (xEnd > 4) {
 					xEnd = 4;
 				}
-				int mask = (int) (ymask & kXMask[xEnd]);
+				int mask = ymask & kXMask[xEnd];
 				for (int cy = 0; cy < yEnd; cy++) {
 					int q = (cy * 4) * 3;
 					int p = pixelSize * x + stride * (y + cy);
 					if (pixelSize == 3) {
 						for (int cx = 0; cx < xEnd; cx++) {
-							long pixel = (pIn.get(p + 2) << 16)
-									| (pIn.get(p + 1) << 8) | pIn.get(p);
+							int pixel = ((pIn.get(p+2) & 0xFF) << 16) |((pIn.get(p+1) & 0xFF) << 8) | (pIn.get(p) & 0xFF);
 							block[q++] = (byte) ((pixel >> 16) & 0xFF);
 							block[q++] = (byte) ((pixel >> 8) & 0xFF);
 							block[q++] = (byte) (pixel & 0xFF);
@@ -248,16 +247,16 @@ public class RsETC1 {
 						// pIn.get(block, q, xEnd * 3);
 						// System.arraycopy(pIn, p, block, q, xEnd * 3);
 					} else {
-						for (int cx = 0; cx < xEnd; cx++) {
-							short p1 = pIn.get(p + 1);
-							short p2 = pIn.get(p);
-							long pixel = (p1 << 8) | p2;
-							block[q++] = (byte) convert5To8(pixel >> 11);
-							block[q++] = (byte) convert6To8(pixel >> 5);
-							block[q++] = (byte) convert5To8(pixel);
-							p += pixelSize;
-						}
-					}
+	                    for (int cx = 0; cx < xEnd; cx++) {
+	                    	int p1 = pIn.get(p+1) & 0xFF;
+	                    	int p2 = pIn.get(p) & 0xFF;
+	                    	int pixel = (p1 << 8) | p2;
+	                        block[q++] = (byte) convert5To8(pixel >>> 11);
+	                        block[q++] = (byte) convert6To8(pixel >>> 5);
+	                        block[q++] = (byte) convert5To8(pixel);
+	                        p += pixelSize;
+	                    }
+	                }
 				}
 				addToInputAllocation(block, mask);
 				// System.arraycopy(encoded, 0, compressedImage, iOut,
@@ -318,7 +317,7 @@ public class RsETC1 {
 		byte[] p00t_temp = {block[3 * (0 + 4 * 0)], block[3 * (0 + 4 * 0) + 1], block[3 * (0 + 4 * 0) + 2], 0};
 		byte[] p01t_temp = {block[3 * (0 + 4 * 1)], block[3 * (0 + 4 * 1) + 1], block[3 * (0 + 4 * 1) + 2], 0};
 		byte[] p02t_temp = {block[3 * (0 + 4 * 2)], block[3 * (0 + 4 * 2) + 1], block[3 * (0 + 4 * 2) + 2], 0};
-		byte[] p03t_temp = {block[3 * (0 + 4 * 3)], block[3 * (0 + 4 * 3) + 1], block[3 * (0 + 4 * 2) + 3], 0};
+		byte[] p03t_temp = {block[3 * (0 + 4 * 3)], block[3 * (0 + 4 * 3) + 1], block[3 * (0 + 4 * 2) + 2], 0};
 
 		byte[] p10t_temp = {block[3 * (1 + 4 * 0)], block[3 * (1 + 4 * 0) + 1], block[3 * (1 + 4 * 0) + 2], 0};
 		byte[] p11t_temp = {block[3 * (1 + 4 * 1)], block[3 * (1 + 4 * 1) + 1], block[3 * (1 + 4 * 1) + 2], 0};
