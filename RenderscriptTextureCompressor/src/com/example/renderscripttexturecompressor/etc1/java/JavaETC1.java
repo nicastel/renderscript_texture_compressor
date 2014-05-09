@@ -290,7 +290,7 @@ public class JavaETC1 {
 	}
 
 	static
-	void etc_average_colors_subblock(short[] pIn, long inMask,
+	void etc_average_colors_subblock(byte[] pIn, long inMask,
 			short[] pColors, int icolor, boolean flipped, boolean second) {
 	    int r = 0;
 	    int g = 0;
@@ -307,9 +307,9 @@ public class JavaETC1 {
 	                int i = x + 4 * yy;
 	                if ((inMask & (1 << i))>0) {
 	                    int p = i * 3;
-	                    r += pIn[p++];
-	                    g += pIn[p++];
-	                    b += pIn[p++];
+	                    r += pIn[p++] & 0xff;
+	                    g += pIn[p++] & 0xff;
+	                    b += pIn[p++] & 0xff;
 	                }
 	            }
 	        }
@@ -324,9 +324,9 @@ public class JavaETC1 {
 	                int i = xx + 4 * y;
 	                if ((inMask & (1 << i))>0) {
 	                	int p = i * 3;
-	                	r += pIn[p++];
-	                	g += pIn[p++];
-	                	b += pIn[p++];
+	                	r += pIn[p++] & 0xff;
+	                	g += pIn[p++] & 0xff;
+	                	b += pIn[p++] & 0xff;
 	                }
 	            }
 	        }
@@ -342,13 +342,13 @@ public class JavaETC1 {
 	}
 
 	static long chooseModifier(short[] pBaseColors, int icolor,
-			short[] pIn, int indice, etc_compressed pCompressed, long bitIndex,
+			byte[] pIn, int indice, etc_compressed pCompressed, long bitIndex,
 			int[] pModifierTable, int iModifierTable) {
 		long bestScore = Long.MAX_VALUE;
 	    long bestIndex = 0;
-	    int pixelR = pIn[indice];
-	    int pixelG = pIn[indice+1];
-	    int pixelB = pIn[indice+2];
+	    int pixelR = pIn[indice] & 0xff;
+	    int pixelG = pIn[indice+1] & 0xff;
+	    int pixelB = pIn[indice+2] & 0xff;
 	    int r = pBaseColors[icolor];
 	    int g = pBaseColors[icolor+1];
 	    int b = pBaseColors[icolor+2];
@@ -378,7 +378,7 @@ public class JavaETC1 {
 	}
 
 	static
-	void etc_encode_subblock_helper(short[] pIn, long inMask,
+	void etc_encode_subblock_helper(byte[] pIn, long inMask,
 	        etc_compressed pCompressed, boolean flipped, boolean second,
 	        short[] pBaseColors, int icolor, int[] pModifierTable, int indice) {
 	    long score = pCompressed.score;
@@ -481,7 +481,7 @@ public class JavaETC1 {
 	}
 
 	static
-	etc_compressed etc_encode_block_helper(short[] pIn, long inMask,
+	etc_compressed etc_encode_block_helper(byte[] pIn, long inMask,
 			short[] pColors, etc_compressed pCompressed, boolean flipped) {
 	    pCompressed.score = Long.MAX_VALUE;
 	    pCompressed.high = (flipped ? 1 : 0);
@@ -534,7 +534,7 @@ public class JavaETC1 {
 	 * pixel is valid or not. Invalid pixel color values are ignored when compressing.
 	 * output is an ETC1 compressed version of the data.
 	 */
-	public static void encodeBlock(short[] pIn, long inMask,
+	public static void encodeBlock(byte[] pIn, long inMask,
 			byte[] pOut) {
 		short[] colors = new short[6];
 		short[] flippedColors = new short[6];
@@ -575,7 +575,7 @@ public class JavaETC1 {
 	    final long kYMask[] = { 0x0, 0xf, 0xff, 0xfff, 0xffff };
 	    final long kXMask[] = { 0x0, 0x1111, 0x3333, 0x7777,
 	            0xffff };
-	    short [] block = new short [DECODED_BLOCK_SIZE];
+	    byte [] block = new byte [DECODED_BLOCK_SIZE];
 	    byte [] encoded = new byte [ENCODED_BLOCK_SIZE];
 
 	    int encodedWidth = (width + 3) & ~3;
@@ -600,10 +600,10 @@ public class JavaETC1 {
 	            	int p = pixelSize * x + stride * (y + cy);
 	                if (pixelSize == 3) {
 	                	for (int cx = 0; cx < xEnd; cx++) {
-	                        long pixel = (pIn.get(p+2) << 16) |(pIn.get(p+1) << 8) | pIn.get(p);
-	                        block[q++] = (short) ((pixel >> 16) & 0xFF);
-	                        block[q++] = (short) ((pixel >> 8) & 0xFF);
-	                        block[q++] = (short) (pixel & 0xFF);
+	                        int pixel = ((pIn.get(p+2) & 0xFF) << 16) |((pIn.get(p+1) & 0xFF) << 8) | (pIn.get(p) & 0xFF);
+	                        block[q++] = (byte) ((pixel >> 16) & 0xFF);
+	                        block[q++] = (byte) ((pixel >> 8) & 0xFF);
+	                        block[q++] = (byte) (pixel & 0xFF);
 	                        p += pixelSize;
 	                    }
 	                	//pIn.position(p);
@@ -614,9 +614,9 @@ public class JavaETC1 {
 	                    	int p1 = pIn.get(p+1) & 0xFF;
 	                    	int p2 = pIn.get(p) & 0xFF;
 	                    	int pixel = (p1 << 8) | p2;
-	                        block[q++] = (short) convert5To8(pixel >>> 11);
-	                        block[q++] = (short) convert6To8(pixel >>> 5);
-	                        block[q++] = (short) convert5To8(pixel);
+	                        block[q++] = (byte) convert5To8(pixel >>> 11);
+	                        block[q++] = (byte) convert6To8(pixel >>> 5);
+	                        block[q++] = (byte) convert5To8(pixel);
 	                        p += pixelSize;
 	                    }
 	                }
