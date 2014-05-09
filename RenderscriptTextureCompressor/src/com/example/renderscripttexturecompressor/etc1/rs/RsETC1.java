@@ -259,9 +259,6 @@ public class RsETC1 {
 	                }
 				}
 				addToInputAllocation(block, mask);
-				// System.arraycopy(encoded, 0, compressedImage, iOut,
-				// encoded.length);
-				// iOut += encoded.length;
 			}
 		}
 		
@@ -353,6 +350,7 @@ public class RsETC1 {
 		System.arraycopy(p31t_temp, 0, p31t, block_number * 4, 3);
 		System.arraycopy(p32t_temp, 0, p32t, block_number * 4, 3);
 		System.arraycopy(p33t_temp, 0, p33t, block_number * 4, 3);
+		block_number++;
 	}
 	
 	private static void fillAllocation() {
