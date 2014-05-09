@@ -290,7 +290,7 @@ public class JavaETC1 {
 	}
 
 	static
-	void etc_average_colors_subblock(byte[] pIn, long inMask,
+	void etc_average_colors_subblock(byte[] pIn, int inMask,
 			short[] pColors, int icolor, boolean flipped, boolean second) {
 	    int r = 0;
 	    int g = 0;
@@ -534,7 +534,7 @@ public class JavaETC1 {
 	 * pixel is valid or not. Invalid pixel color values are ignored when compressing.
 	 * output is an ETC1 compressed version of the data.
 	 */
-	public static void encodeBlock(byte[] pIn, long inMask,
+	public static void encodeBlock(byte[] pIn, int inMask,
 			byte[] pOut) {
 		short[] colors = new short[6];
 		short[] flippedColors = new short[6];
@@ -572,8 +572,8 @@ public class JavaETC1 {
 	    if (pixelSize < 2 || pixelSize > 3) {
 	        return -1;
 	    }
-	    final long kYMask[] = { 0x0, 0xf, 0xff, 0xfff, 0xffff };
-	    final long kXMask[] = { 0x0, 0x1111, 0x3333, 0x7777,
+	    final int kYMask[] = { 0x0, 0xf, 0xff, 0xfff, 0xffff };
+	    final int kXMask[] = { 0x0, 0x1111, 0x3333, 0x7777,
 	            0xffff };
 	    byte [] block = new byte [DECODED_BLOCK_SIZE];
 	    byte [] encoded = new byte [ENCODED_BLOCK_SIZE];
@@ -588,27 +588,27 @@ public class JavaETC1 {
 	        if (yEnd > 4) {
 	            yEnd = 4;
 	        }
-	        long ymask = kYMask[yEnd];
+	        int ymask = kYMask[yEnd];
 	        for (int x = 0; x < encodedWidth; x += 4) {
 	        	int xEnd = width - x;
 	            if (xEnd > 4) {
 	                xEnd = 4;
 	            }
-	            long mask = ymask & kXMask[xEnd];
+	            int mask = ymask & kXMask[xEnd];
 	            for (int cy = 0; cy < yEnd; cy++) {
 	            	int q = (cy * 4) * 3;
 	            	int p = pixelSize * x + stride * (y + cy);
 	                if (pixelSize == 3) {
-	                	for (int cx = 0; cx < xEnd; cx++) {
-	                        int pixel = ((pIn.get(p+2) & 0xFF) << 16) |((pIn.get(p+1) & 0xFF) << 8) | (pIn.get(p) & 0xFF);
-	                        block[q++] = (byte) ((pixel >> 16) & 0xFF);
-	                        block[q++] = (byte) ((pixel >> 8) & 0xFF);
-	                        block[q++] = (byte) (pixel & 0xFF);
-	                        p += pixelSize;
-	                    }
-	                	//pIn.position(p);
-	                	//pIn.get(block, q, xEnd * 3);
-	                	//System.arraycopy(pIn, p, block, q, xEnd * 3);
+//	                	for (int cx = 0; cx < xEnd; cx++) {
+//	                        int pixel = ((pIn.get(p+2) & 0xFF) << 16) |((pIn.get(p+1) & 0xFF) << 8) | (pIn.get(p) & 0xFF);
+//	                        block[q++] = (byte) ((pixel >> 16) & 0xFF);
+//	                        block[q++] = (byte) ((pixel >> 8) & 0xFF);
+//	                        block[q++] = (byte) (pixel & 0xFF);
+//	                        p += pixelSize;
+//	                    }
+	                	pIn.position(p);
+	                	pIn.get(block, q, xEnd * 3);
+	                	System.arraycopy(pIn, p, block, q, xEnd * 3);
 	                } else {
 	                    for (int cx = 0; cx < xEnd; cx++) {
 	                    	int p1 = pIn.get(p+1) & 0xFF;
@@ -623,8 +623,6 @@ public class JavaETC1 {
 	            }
 	            encodeBlock(block, mask, encoded);
 	            compressedImage.put(encoded);
-	            //System.arraycopy(encoded, 0, compressedImage, iOut, encoded.length);
-	            //iOut += encoded.length;
 	        }
 	    }
 	    compressedImage.position(0);
