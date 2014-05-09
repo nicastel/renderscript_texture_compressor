@@ -49,11 +49,6 @@ public class RsETC1 {
 	/* unsigned */long etc1_uint32;
 
 
-
-	static short clamp(long x) {
-		return (short) (x >= 0 ? (x < 255 ? x : 255) : 0);
-	}
-
 	static short convert4To8(int b) {
 		int c = b & 0xf;
 		return (short) ((c << 4) | c);
@@ -82,20 +77,6 @@ public class RsETC1 {
 	static short convert6To8(long b) {
 		long c = b & 0x3f;
 		return (short) ((c << 2) | (c >> 4));
-	}
-
-	static int divideBy255(int d) {
-		return (d + 128 + (d >> 8)) >> 8;
-	}
-
-	static int convert8To4(int b) {
-		int c = b & 0xff;
-		return divideBy255(b * 15);
-	}
-
-	static int convert8To5(int b) {
-		int c = b & 0xff;
-		return divideBy255(b * 31);
 	}
 
 	/**
@@ -159,6 +140,9 @@ public class RsETC1 {
 	 */
 	public static int encodeImage(RenderScript rs, ScriptC_etc1compressor script, ByteBuffer pIn, int width, int height,
 			int pixelSize, int stride, ByteBuffer compressedImage) {
+		
+		long tInitArray = java.lang.System.currentTimeMillis();
+		
 		if (pixelSize < 2 || pixelSize > 3) {
 			return -1;
 		}
@@ -262,11 +246,23 @@ public class RsETC1 {
 			}
 		}
 		
-		fillAllocation();
+		tInitArray = java.lang.System.currentTimeMillis() - tInitArray;
+		System.out.println("tInitArray : "+tInitArray+" ms");
+		
+		long tFillAlloc = java.lang.System.currentTimeMillis();
+		fillAllocation();	
 		
 		setAllocation(script);
-		script.forEach_root(aout);
 		
+		tFillAlloc = java.lang.System.currentTimeMillis() - tFillAlloc;
+		System.out.println("tFillAlloc : "+tFillAlloc+" ms");
+		
+		long tExec = java.lang.System.currentTimeMillis();
+		script.forEach_root(aout);
+		tExec = java.lang.System.currentTimeMillis() - tExec;
+		System.out.println("tExec : "+tExec+" ms");
+		
+		long tFillOut = java.lang.System.currentTimeMillis();
 		short[] arrayOut3Temp = new short[4*size];
 		aout.copyTo(arrayOut3Temp);
 		
@@ -276,6 +272,8 @@ public class RsETC1 {
 		byte[] encoded = new byte[8*size];
 		aout2.copyTo(encoded);		
 		compressedImage.put(encoded);
+		tFillOut = java.lang.System.currentTimeMillis() - tFillOut;
+		System.out.println("tFillOut : "+tFillOut+" ms");
 		
 		compressedImage.position(0);
 		return 0;
