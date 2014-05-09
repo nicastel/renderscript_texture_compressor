@@ -325,9 +325,9 @@ public class RsETC1 {
 		byte[] p23t_temp = {block[3 * (2 + 4 * 3)], block[3 * (2 + 4 * 3) + 1], block[3 * (2 + 4 * 3) + 2], 0};
 
 		byte[] p30t_temp = {block[3 * (3 + 4 * 0)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 0) + 2], 0};
-		byte[] p31t_temp = {block[3 * (3 + 4 * 1)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 1) + 2], 0};
-		byte[] p32t_temp = {block[3 * (3 + 4 * 2)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 2) + 2], 0};
-		byte[] p33t_temp = {block[3 * (3 + 4 * 3)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 3) + 2], 0};
+		byte[] p31t_temp = {block[3 * (3 + 4 * 1)], block[3 * (3 + 4 * 1) + 1], block[3 * (3 + 4 * 1) + 2], 0};
+		byte[] p32t_temp = {block[3 * (3 + 4 * 2)], block[3 * (3 + 4 * 2) + 1], block[3 * (3 + 4 * 2) + 2], 0};
+		byte[] p33t_temp = {block[3 * (3 + 4 * 3)], block[3 * (3 + 4 * 3) + 1], block[3 * (3 + 4 * 3) + 2], 0};
 		
 		System.arraycopy(p00t_temp, 0, p00t, block_number * 4, 3);
 		System.arraycopy(p01t_temp, 0, p01t, block_number * 4, 3);
