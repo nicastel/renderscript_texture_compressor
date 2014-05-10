@@ -440,26 +440,15 @@ void etc1_encode_block(const etc1_byte* pIn, etc1_uint32 inMask, etc1_byte* pOut
 
 uchar * pInA; // uchar3
 
-rs_allocation mask; // uint32_t    
-
-// TODO: this needs to be optimized, obviously
-static void memcpy(void* dst, void* src, size_t size) {
-    char* dst_c = (char*) dst, *src_c = (char*) src;
-    for (; size > 0; size--) {
-        *dst_c++ = *src_c++;
-    }
-}       
+rs_allocation mask; // uint32_t         
 
 // processing of one ETC1 block
 ushort4 __attribute__((kernel)) root(uint32_t x)  {
 		//rsDebug("===========root==================",x);
 
-		etc1_byte  pIn [48];
 		etc1_byte  pOut [8];
 		
 		//  R, G, B. Byte (3 * (x + 4 * y) is the R value of pixel (x, y)
-		
-		//memcpy(pIn,pInA+48*x,48);
 		
 		//rsDebug("pInA", pInA);
 		etc1_uint32 amask = *((etc1_uint32 *)rsGetElementAt(mask, x));
