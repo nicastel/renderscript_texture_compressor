@@ -437,124 +437,31 @@ void etc1_encode_block(const etc1_byte* pIn, etc1_uint32 inMask, etc1_byte* pOut
     writeBigEndian(pOut + 4, a.low);
 }
 
-rs_allocation p00; // uchar3
-rs_allocation p01; // uchar3
-rs_allocation p02; // uchar3
-rs_allocation p03; // uchar3
+uchar * pInA; // uchar3
 
-rs_allocation p10; // uchar3
-rs_allocation p11; // uchar3
-rs_allocation p12; // uchar3
-rs_allocation p13; // uchar3
+rs_allocation mask; // uint32_t    
 
-rs_allocation p20; // uchar3
-rs_allocation p21; // uchar3
-rs_allocation p22; // uchar3
-rs_allocation p23; // uchar3
-
-rs_allocation p30; // uchar3
-rs_allocation p31; // uchar3
-rs_allocation p32; // uchar3
-rs_allocation p33; // uchar3
-
-rs_allocation mask; // uint32_t           
+// TODO: this needs to be optimized, obviously
+static void memcpy(void* dst, void* src, size_t size) {
+    char* dst_c = (char*) dst, *src_c = (char*) src;
+    for (; size > 0; size--) {
+        *dst_c++ = *src_c++;
+    }
+}       
 
 // processing of one ETC1 block
-// 6*4*16 bit in -> 4*16 bit out
-ushort4 __attribute__((kernel)) root(uint32_t x, uint32_t y)  {
-		//rsDebug("===========root==================",0);
+ushort4 __attribute__((kernel)) root(uint32_t x)  {
+		//rsDebug("===========root==================",x);
 
 		etc1_byte  pIn [48];
 		etc1_byte  pOut [8];
 		
 		//  R, G, B. Byte (3 * (x + 4 * y) is the R value of pixel (x, y)
-
-		int x1=0;
-		int y1=0;
-		pIn[3 * (x1 + 4 * y1)] = rsGetElementAt_uchar3(p00,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = rsGetElementAt_uchar3(p00,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = rsGetElementAt_uchar3(p00,x,y).z;
 		
-		y1++;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p01,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p01,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p01,x,y).z;
+		memcpy(pIn,pInA+48*x,48);
 		
-		y1++;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p02,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p02,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p02,x,y).z;
-		
-		y1++;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p03,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p03,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p03,x,y).z;
-		
-		x1++;
-		y1=0;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p10,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p10,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p10,x,y).z;
-		
-		y1++;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p11,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p11,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p11,x,y).z;
-		
-		y1++;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p12,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p12,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p12,x,y).z;
-		
-		y1++;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p13,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p13,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p13,x,y).z;
-		
-		x1++;
-		y1=0;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p20,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p20,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p20,x,y).z;
-		
-		y1++;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p21,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p21,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p21,x,y).z;
-		
-		y1++;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p22,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p22,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p22,x,y).z;
-		
-		y1++;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p23,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p23,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p23,x,y).z;
-		
-		x1++;
-		y1=0;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p30,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p30,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p30,x,y).z;
-		
-		y1++;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p31,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p31,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p31,x,y).z;
-		
-		y1++;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p32,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p32,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p32,x,y).z;
-		
-		y1++;
-		pIn[3 * (x1 + 4 * y1)] = (etc1_byte) rsGetElementAt_uchar3(p33,x,y).x;			
-		pIn[3 * (x1 + 4 * y1) + 1] = (etc1_byte) rsGetElementAt_uchar3(p33,x,y).y;
-		pIn[3 * (x1 + 4 * y1) + 2] = (etc1_byte) rsGetElementAt_uchar3(p33,x,y).z;
-		
-		//rsDebug("pIn", pIn);
-		etc1_uint32 amask = *((etc1_uint32 *)rsGetElementAt(mask, x, y));
+		//rsDebug("pInA", pInA);
+		etc1_uint32 amask = *((etc1_uint32 *)rsGetElementAt(mask, x));
 		//rsDebug("mask",amask);
 		
 		//rsDebug("etc1_encode_block call",0);

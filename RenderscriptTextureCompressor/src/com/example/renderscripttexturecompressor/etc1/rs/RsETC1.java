@@ -88,47 +88,11 @@ public class RsETC1 {
 	}
 	
 	private static Allocation p00; // uchar3
-	private static Allocation p01; // uchar3
-	private static Allocation p02; // uchar3
-	private static Allocation p03; // uchar3
-
-	private static Allocation p10; // uchar3
-	private static Allocation p11; // uchar3
-	private static Allocation p12; // uchar3
-	private static Allocation p13; // uchar3
-
-	private static Allocation p20; // uchar3
-	private static Allocation p21; // uchar3
-	private static Allocation p22; // uchar3
-	private static Allocation p23; // uchar3
-
-	private static Allocation p30; // uchar3
-	private static Allocation p31; // uchar3
-	private static Allocation p32; // uchar3
-	private static Allocation p33; // uchar3
 	private static Allocation amask; // uchar3
 	private static Allocation aout; // uchar3
 	
 	//  R, G, B. Byte (3 * (x + 4 * y) is the R value of pixel (x, y)
 	private static byte[] p00t;
-	private static byte[] p01t;
-	private static byte[] p02t;
-	private static byte[] p03t;
-
-	private static byte[] p10t;
-	private static byte[] p11t;
-	private static byte[] p12t;
-	private static byte[] p13t;
-
-	private static byte[] p20t;
-	private static byte[] p21t;
-	private static byte[] p22t;
-	private static byte[] p23t;
-
-	private static byte[] p30t;
-	private static byte[] p31t;
-	private static byte[] p32t;
-	private static byte[] p33t;
 
 	private static int [] inmask;
 	/**
@@ -159,47 +123,11 @@ public class RsETC1 {
 		
 		int size = width * height / (DECODED_BLOCK_SIZE / 3);
 
-		p00 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-		p01 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-		p02 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-		p03 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-
-		p10 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-		p11 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-		p12 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-		p13 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-
-		p20 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-		p21 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-		p22 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-		p23 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-
-		p30 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-		p31 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-		p32 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
-		p33 = Allocation.createSized(rs, Element.U8_3(rs), size); // uchar3
+		p00 = Allocation.createSized(rs, Element.U8(rs), DECODED_BLOCK_SIZE*size); // uchar3
 		amask = Allocation.createSized(rs, Element.U32(rs), size);
 		aout = Allocation.createSized(rs, Element.U16_4(rs), size);
 		
-		p00t = new byte[4*size];
-		p01t = new byte[4*size];
-		p02t = new byte[4*size];
-		p03t = new byte[4*size];
-
-		p10t = new byte[4*size];
-		p11t = new byte[4*size];
-		p12t = new byte[4*size];
-		p13t = new byte[4*size];
-
-		p20t = new byte[4*size];
-		p21t = new byte[4*size];
-		p22t = new byte[4*size];
-		p23t = new byte[4*size];
-
-		p30t = new byte[4*size];
-		p31t = new byte[4*size];
-		p32t = new byte[4*size];
-		p33t = new byte[4*size];
+		p00t = new byte[DECODED_BLOCK_SIZE*size];
 
 		inmask = new int [size];
 		
@@ -280,25 +208,7 @@ public class RsETC1 {
 	}
 
 	private static void setAllocation(ScriptC_etc1compressor script) {
-		script.set_p00(p00);
-		script.set_p01(p01);
-		script.set_p02(p02);
-		script.set_p03(p03);
-		
-		script.set_p10(p10);
-		script.set_p11(p11);
-		script.set_p12(p12);
-		script.set_p13(p13);
-		
-		script.set_p20(p20);
-		script.set_p21(p21);
-		script.set_p22(p22);
-		script.set_p23(p23);
-		
-		script.set_p30(p30);
-		script.set_p31(p31);
-		script.set_p32(p32);
-		script.set_p33(p33);
+		script.bind_pInA(p00);
 		
 		script.set_mask(amask);
 	}
@@ -307,47 +217,7 @@ public class RsETC1 {
 	private static void addToInputAllocation(byte[] block, int mask) {
 		// TODO Auto-generated method stub
 		inmask[block_number] = mask;
-		
-		//  R, G, B. Byte (3 * (x + 4 * y) is the R value of pixel (x, y)
-		byte[] p00t_temp = {block[3 * (0 + 4 * 0)], block[3 * (0 + 4 * 0) + 1], block[3 * (0 + 4 * 0) + 2], 0};
-		byte[] p01t_temp = {block[3 * (0 + 4 * 1)], block[3 * (0 + 4 * 1) + 1], block[3 * (0 + 4 * 1) + 2], 0};
-		byte[] p02t_temp = {block[3 * (0 + 4 * 2)], block[3 * (0 + 4 * 2) + 1], block[3 * (0 + 4 * 2) + 2], 0};
-		byte[] p03t_temp = {block[3 * (0 + 4 * 3)], block[3 * (0 + 4 * 3) + 1], block[3 * (0 + 4 * 2) + 2], 0};
-
-		byte[] p10t_temp = {block[3 * (1 + 4 * 0)], block[3 * (1 + 4 * 0) + 1], block[3 * (1 + 4 * 0) + 2], 0};
-		byte[] p11t_temp = {block[3 * (1 + 4 * 1)], block[3 * (1 + 4 * 1) + 1], block[3 * (1 + 4 * 1) + 2], 0};
-		byte[] p12t_temp = {block[3 * (1 + 4 * 2)], block[3 * (1 + 4 * 2) + 1], block[3 * (1 + 4 * 2) + 2], 0};
-		byte[] p13t_temp = {block[3 * (1 + 4 * 3)], block[3 * (1 + 4 * 3) + 1], block[3 * (1 + 4 * 3) + 2], 0};
-
-		byte[] p20t_temp = {block[3 * (2 + 4 * 0)], block[3 * (2 + 4 * 0) + 1], block[3 * (2 + 4 * 0) + 2], 0};
-		byte[] p21t_temp = {block[3 * (2 + 4 * 1)], block[3 * (2 + 4 * 1) + 1], block[3 * (2 + 4 * 1) + 2], 0};
-		byte[] p22t_temp = {block[3 * (2 + 4 * 2)], block[3 * (2 + 4 * 2) + 1], block[3 * (2 + 4 * 2) + 2], 0};
-		byte[] p23t_temp = {block[3 * (2 + 4 * 3)], block[3 * (2 + 4 * 3) + 1], block[3 * (2 + 4 * 3) + 2], 0};
-
-		byte[] p30t_temp = {block[3 * (3 + 4 * 0)], block[3 * (3 + 4 * 0) + 1], block[3 * (3 + 4 * 0) + 2], 0};
-		byte[] p31t_temp = {block[3 * (3 + 4 * 1)], block[3 * (3 + 4 * 1) + 1], block[3 * (3 + 4 * 1) + 2], 0};
-		byte[] p32t_temp = {block[3 * (3 + 4 * 2)], block[3 * (3 + 4 * 2) + 1], block[3 * (3 + 4 * 2) + 2], 0};
-		byte[] p33t_temp = {block[3 * (3 + 4 * 3)], block[3 * (3 + 4 * 3) + 1], block[3 * (3 + 4 * 3) + 2], 0};
-		
-		System.arraycopy(p00t_temp, 0, p00t, block_number * 4, 3);
-		System.arraycopy(p01t_temp, 0, p01t, block_number * 4, 3);
-		System.arraycopy(p02t_temp, 0, p02t, block_number * 4, 3);
-		System.arraycopy(p03t_temp, 0, p03t, block_number * 4, 3);
-		
-		System.arraycopy(p10t_temp, 0, p10t, block_number * 4, 3);
-		System.arraycopy(p11t_temp, 0, p11t, block_number * 4, 3);
-		System.arraycopy(p12t_temp, 0, p12t, block_number * 4, 3);
-		System.arraycopy(p13t_temp, 0, p13t, block_number * 4, 3);
-		
-		System.arraycopy(p20t_temp, 0, p20t, block_number * 4, 3);
-		System.arraycopy(p21t_temp, 0, p21t, block_number * 4, 3);
-		System.arraycopy(p22t_temp, 0, p22t, block_number * 4, 3);
-		System.arraycopy(p23t_temp, 0, p23t, block_number * 4, 3);
-
-		System.arraycopy(p30t_temp, 0, p30t, block_number * 4, 3);
-		System.arraycopy(p31t_temp, 0, p31t, block_number * 4, 3);
-		System.arraycopy(p32t_temp, 0, p32t, block_number * 4, 3);
-		System.arraycopy(p33t_temp, 0, p33t, block_number * 4, 3);
+		System.arraycopy(block, 0, p00t, block_number * DECODED_BLOCK_SIZE, DECODED_BLOCK_SIZE);
 		block_number++;
 	}
 	
@@ -356,24 +226,6 @@ public class RsETC1 {
 		amask.copyFrom(inmask);
 		
 		p00.copyFrom(p00t);
-		p01.copyFrom(p01t);
-		p02.copyFrom(p02t);
-		p03.copyFrom(p03t);
-
-		p10.copyFrom(p10t);
-		p11.copyFrom(p11t);
-		p12.copyFrom(p12t);
-		p13.copyFrom(p13t);
-
-		p20.copyFrom(p20t);
-		p21.copyFrom(p21t);
-		p22.copyFrom(p22t);
-		p23.copyFrom(p23t);
-
-		p30.copyFrom(p30t);
-		p31.copyFrom(p31t);
-		p32.copyFrom(p32t);
-		p33.copyFrom(p33t);
 	}
 
 	static final byte kMagic[] = { 'P', 'K', 'M', ' ', '1', '0' };
