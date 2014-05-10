@@ -15,6 +15,7 @@
  */
 
 #pragma version(1)
+#pragma rs_fp_relaxed
 #pragma rs java_package_name(com.example.renderscripttexturecompressor.etc1.rs)
 
 typedef unsigned char etc1_byte;
