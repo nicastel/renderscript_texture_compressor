@@ -115,7 +115,6 @@ public class RsETC1 {
 		final int kXMask[] = { 0x0, 0x1111, 0x3333, 0x7777, 0xffff };
 		byte[] block = new byte[DECODED_BLOCK_SIZE];
 
-		// TODO check the ~3
 		int encodedWidth = (width + 3) & ~3;
 		int encodedHeight = (height + 3) & ~3;
 
@@ -131,7 +130,7 @@ public class RsETC1 {
 
 		inmask = new int [size];
 		
-		
+		// TODO : optimize this with renderscript also !
 		for (int y = 0; y < encodedHeight; y += 4) {
 			int yEnd = height - y;
 			if (yEnd > 4) {
@@ -215,7 +214,6 @@ public class RsETC1 {
 
 	private static int block_number = 0;
 	private static void addToInputAllocation(byte[] block, int mask) {
-		// TODO Auto-generated method stub
 		inmask[block_number] = mask;
 		System.arraycopy(block, 0, p00t, block_number * DECODED_BLOCK_SIZE, DECODED_BLOCK_SIZE);
 		block_number++;

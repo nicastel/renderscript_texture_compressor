@@ -458,14 +458,14 @@ ushort4 __attribute__((kernel)) root(uint32_t x)  {
 		
 		//  R, G, B. Byte (3 * (x + 4 * y) is the R value of pixel (x, y)
 		
-		memcpy(pIn,pInA+48*x,48);
+		//memcpy(pIn,pInA+48*x,48);
 		
 		//rsDebug("pInA", pInA);
 		etc1_uint32 amask = *((etc1_uint32 *)rsGetElementAt(mask, x));
 		//rsDebug("mask",amask);
 		
 		//rsDebug("etc1_encode_block call",0);
-		etc1_encode_block (pIn, amask, pOut);
+		etc1_encode_block (pInA+48*x, amask, pOut);
 		
 		//rsDebug("pOut[0]",pOut[0]);
 		//rsDebug("pOut[1]",pOut[1]);
