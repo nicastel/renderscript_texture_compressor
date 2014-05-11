@@ -139,9 +139,7 @@ public class RsETC1 {
 		Allocation aout2 = Allocation.createSized(rs, Element.U8(rs), 8*size);
 		aout2.copyFromUnchecked(arrayOut3Temp);
 		
-		byte[] encoded = new byte[8*size];
-		aout2.copyTo(encoded);		
-		compressedImage.put(encoded);
+		aout2.copyTo(compressedImage.array());	
 		tFillOut = java.lang.System.currentTimeMillis() - tFillOut;
 		System.out.println("tFillOut : "+tFillOut+" ms");
 		
