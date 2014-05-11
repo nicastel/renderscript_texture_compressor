@@ -88,13 +88,8 @@ public class RsETC1 {
 	}
 	
 	private static Allocation p00; // uchar3
-	private static Allocation amask; // uchar3
 	private static Allocation aout; // uchar3
 	
-	//  R, G, B. Byte (3 * (x + 4 * y) is the R value of pixel (x, y)
-	private static byte[] p00t;
-
-	private static int [] inmask;
 	/**
 	 * Encode an entire image. pIn - pointer to the image data. Formatted such
 	 * that the Red component of pixel (x,y) is at pIn + pixelSize * x + stride
@@ -107,77 +102,25 @@ public class RsETC1 {
 		
 		long tInitArray = java.lang.System.currentTimeMillis();
 		
+		script.set_height(height);
+		script.set_width(width);
+		
 		if (pixelSize < 2 || pixelSize > 3) {
 			return -1;
 		}
-		block_number = 0;
-		final int kYMask[] = { 0x0, 0xf, 0xff, 0xfff, 0xffff };
-		final int kXMask[] = { 0x0, 0x1111, 0x3333, 0x7777, 0xffff };
-		byte[] block = new byte[DECODED_BLOCK_SIZE];
-
-		int encodedWidth = (width + 3) & ~3;
-		int encodedHeight = (height + 3) & ~3;
 
 		// int iOut = 0;
 		
 		int size = width * height / (DECODED_BLOCK_SIZE / 3);
-
-		p00 = Allocation.createSized(rs, Element.U8(rs), DECODED_BLOCK_SIZE*size); // uchar3
-		amask = Allocation.createSized(rs, Element.U32(rs), size);
+		
+		p00 = Allocation.createSized(rs, Element.U8(rs), width * height * pixelSize);
 		aout = Allocation.createSized(rs, Element.U16_4(rs), size);
-		
-		p00t = new byte[DECODED_BLOCK_SIZE*size];
 
-		inmask = new int [size];
-		
-		// TODO : optimize this with renderscript also !
-		for (int y = 0; y < encodedHeight; y += 4) {
-			int yEnd = height - y;
-			if (yEnd > 4) {
-				yEnd = 4;
-			}
-			int ymask = kYMask[yEnd];
-			for (int x = 0; x < encodedWidth; x += 4) {
-				int xEnd = width - x;
-				if (xEnd > 4) {
-					xEnd = 4;
-				}
-				int mask = ymask & kXMask[xEnd];
-				for (int cy = 0; cy < yEnd; cy++) {
-					int q = (cy * 4) * 3;
-					int p = pixelSize * x + stride * (y + cy);
-					if (pixelSize == 3) {
-						for (int cx = 0; cx < xEnd; cx++) {
-							int pixel = ((pIn.get(p+2) & 0xFF) << 16) |((pIn.get(p+1) & 0xFF) << 8) | (pIn.get(p) & 0xFF);
-							block[q++] = (byte) ((pixel >> 16) & 0xFF);
-							block[q++] = (byte) ((pixel >> 8) & 0xFF);
-							block[q++] = (byte) (pixel & 0xFF);
-							p += pixelSize;
-						}
-						// pIn.position(p);
-						// pIn.get(block, q, xEnd * 3);
-						// System.arraycopy(pIn, p, block, q, xEnd * 3);
-					} else {
-	                    for (int cx = 0; cx < xEnd; cx++) {
-	                    	int p1 = pIn.get(p+1) & 0xFF;
-	                    	int p2 = pIn.get(p) & 0xFF;
-	                    	int pixel = (p1 << 8) | p2;
-	                        block[q++] = (byte) convert5To8(pixel >>> 11);
-	                        block[q++] = (byte) convert6To8(pixel >>> 5);
-	                        block[q++] = (byte) convert5To8(pixel);
-	                        p += pixelSize;
-	                    }
-	                }
-				}
-				addToInputAllocation(block, mask);
-			}
-		}
-		
 		tInitArray = java.lang.System.currentTimeMillis() - tInitArray;
 		System.out.println("tInitArray : "+tInitArray+" ms");
 		
 		long tFillAlloc = java.lang.System.currentTimeMillis();
-		fillAllocation();	
+		fillAllocation(pIn.array());	
 		
 		setAllocation(script);
 		
@@ -208,22 +151,10 @@ public class RsETC1 {
 
 	private static void setAllocation(ScriptC_etc1compressor script) {
 		script.bind_pInA(p00);
-		
-		script.set_mask(amask);
-	}
-
-	private static int block_number = 0;
-	private static void addToInputAllocation(byte[] block, int mask) {
-		inmask[block_number] = mask;
-		System.arraycopy(block, 0, p00t, block_number * DECODED_BLOCK_SIZE, DECODED_BLOCK_SIZE);
-		block_number++;
 	}
 	
-	private static void fillAllocation() {
-
-		amask.copyFrom(inmask);
-		
-		p00.copyFrom(p00t);
+	private static void fillAllocation(byte[] tIn) {		
+		p00.copyFrom(tIn);
 	}
 
 	static final byte kMagic[] = { 'P', 'K', 'M', ' ', '1', '0' };

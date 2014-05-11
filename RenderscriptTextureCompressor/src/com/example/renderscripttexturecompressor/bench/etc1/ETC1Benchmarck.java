@@ -60,42 +60,6 @@ public class ETC1Benchmarck {
 		return arrayOut2;
 	}
 
-	public static byte[] testRsETC1BlockCompressor(RenderScript rs,
-			ScriptC_etc1compressor script) {
-		// Test RenderScript block compressor
-		byte[] in3 = { 6, 5, 7, 7, 6, 5, 9, 2, 1, 20, 5, 80, 75, 24, 96, 64,
-				27, 43, 45, 78, 21, 2, 85, 32, 9, 5, 7, 7, 6, 5, 9, 2, 1, 85,
-				5, 80, 75, 3, 96, 64, 4, 43, 45, 78, 21, 2, 7, 32,
-				0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
-		Allocation p00 = Allocation.createSized(rs, Element.U8_3(rs), 16); // uchar3
-
-		Allocation amask = Allocation.createSized(rs, Element.U32(rs), 1);
-		int[] inmask = { mask };
-		amask.copyFrom(inmask);
-
-		p00.copyFrom(in3);
-
-		Allocation aout = Allocation.createSized(rs, Element.U16_4(rs), 1);
-
-		script.bind_pInA(p00);
-
-		script.set_mask(amask);
-
-		script.forEach_root(aout);
-
-		short[] arrayOut3Temp = new short[4];
-		aout.copyTo(arrayOut3Temp);
-
-		Allocation aout2 = Allocation.createSized(rs, Element.U8(rs), 8);
-		aout2.copyFromUnchecked(arrayOut3Temp);
-
-		byte[] arrayOut3 = new byte[8];
-		aout2.copyTo(arrayOut3);
-		
-		return arrayOut3;
-	}
-
 	public static void initBuffer() {
 		InputStream input = PKMEncoder.class
 				//.getResourceAsStream("/testdata/block.jpg");

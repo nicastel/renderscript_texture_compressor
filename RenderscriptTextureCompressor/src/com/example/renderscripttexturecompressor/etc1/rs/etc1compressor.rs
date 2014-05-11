@@ -439,23 +439,81 @@ void etc1_encode_block(const etc1_byte* pIn, etc1_uint32 inMask, etc1_byte* pOut
 }
 
 uchar * pInA; // uchar3
+uint32_t height;
+uint32_t width;
 
-rs_allocation mask; // uint32_t         
+static etc1_uint32 pullBlockAndMask_from_565Raster(uint32_t bn, const etc1_byte* pIn,  uint32_t height, uint32_t width, etc1_byte* block) {
+    static const unsigned short kYMask[] = { 0x0, 0xf, 0xff, 0xfff, 0xffff };
+    static const unsigned short kXMask[] = { 0x0, 0x1111, 0x3333, 0x7777,    
+            0xffff };
+    static const int pixelSize = 2;
+                        
+    etc1_uint32 encodedWidth = (width + 3) & ~3;
+    etc1_uint32 encodedHeight = (height + 3) & ~3;
+    
+    //rsDebug("encodedWidth", encodedWidth);
+    //rsDebug("encodedHeight", encodedHeight);
+    
+    int by = bn / (encodedWidth / 4);
+    int bx = bn - (by * (encodedWidth / 4));
+    
+    //rsDebug("bn", bn);
+    //rsDebug("by", by);
+    //rsDebug("bx", bx);
+    
+    int yEnd=4;
+	if(by == (encodedHeight/4)) {
+		yEnd = encodedHeight - height;
+	}
+	int ymask = kYMask[yEnd];
+	
+	int xEnd=4;	
+	if(bx == (encodedWidth/4)) {
+		xEnd = encodedWidth - width;
+	}
+	etc1_uint32 mask = ymask & kXMask[xEnd];
+    
+    int stride = pixelSize * width;  
+    
+    int x = bx * 4;
+	int y = by * 4;
+	
+	for (int cy = 0; cy < yEnd; cy++) {
+		etc1_byte* q = block + (cy * 4) * 3;
+		const etc1_byte* p = pIn + pixelSize * x + stride * (y + cy);
+		for (int cx = 0; cx < xEnd; cx++) {			
+			int pixel = (p[1] << 8) | p[0];
+			//rsDebug("pixel", pixel);
+			//rsDebug("pixelR", convert5To8(pixel >> 11));
+			//rsDebug("pixelG", convert6To8(pixel >> 5));
+			//rsDebug("pixelB", convert5To8(pixel));
+            *q++ = convert5To8(pixel >> 11);
+            *q++ = convert6To8(pixel >> 5);
+            *q++ = convert5To8(pixel);
+            p += pixelSize;
+		}
+	}
+	return mask;
+}         
 
 // processing of one ETC1 block
 ushort4 __attribute__((kernel)) root(uint32_t x)  {
 		//rsDebug("===========root==================",x);
 
-		etc1_byte  pOut [8];
+		etc1_byte pOut [8];
+		etc1_byte block [48];
 		
 		//  R, G, B. Byte (3 * (x + 4 * y) is the R value of pixel (x, y)
 		
 		//rsDebug("pInA", pInA);
-		etc1_uint32 amask = *((etc1_uint32 *)rsGetElementAt(mask, x));
+		etc1_uint32 amask = pullBlockAndMask_from_565Raster(x, pInA, height, width, block);
 		//rsDebug("mask",amask);
+		//for (int i = 0; i < 48; i++) {
+		//	rsDebug("pixel",block[i]);
+		//}
 		
 		//rsDebug("etc1_encode_block call",0);
-		etc1_encode_block (pInA+48*x, amask, pOut);
+		etc1_encode_block (block, amask, pOut);
 		
 		//rsDebug("pOut[0]",pOut[0]);
 		//rsDebug("pOut[1]",pOut[1]);

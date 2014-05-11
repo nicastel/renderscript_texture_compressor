@@ -33,12 +33,6 @@ public class MainActivity extends Activity {
     private Bitmap mBitmapOut;
 
 	public void benchmark(View v) {
-		long tRs = java.lang.System.currentTimeMillis();
-		for(int i = 0; i<10; i++) {
-			ETC1Benchmarck.testRsETC1BlockCompressor(mRS, script);
-		}		
-		tRs = java.lang.System.currentTimeMillis() - tRs;
-		
 		long tJava = java.lang.System.currentTimeMillis();
 		for(int i = 0; i<10; i++) {
 			ETC1Benchmarck.testJavaETC1BlockCompressor();
@@ -54,20 +48,26 @@ public class MainActivity extends Activity {
 		ETC1Benchmarck.initBuffer();
 		
 		long tRsImg = java.lang.System.currentTimeMillis();
-		ETC1Texture texture = ETC1Benchmarck.testRsETC1ImageCompressor(mRS, script);		
+		for(int i = 0; i<10; i++) {
+			ETC1Texture texture = ETC1Benchmarck.testRsETC1ImageCompressor(mRS, script);		
+		}		
 		tRsImg = java.lang.System.currentTimeMillis() - tRsImg;
 		
 		long tJavaImg = java.lang.System.currentTimeMillis();
-		ETC1Texture texture1 = ETC1Benchmarck.testJavaETC1ImageCompressor();	
+		for(int i = 0; i<10; i++) {
+			ETC1Texture texture1 = ETC1Benchmarck.testJavaETC1ImageCompressor();	
+		}		
 		tJavaImg = java.lang.System.currentTimeMillis() - tJavaImg;
 		
 		long tSdkImg = java.lang.System.currentTimeMillis();
-		ETC1Texture texture2 = ETC1Benchmarck.testSDKETC1ImageCompressor();
+		for(int i = 0; i<10; i++) {
+			ETC1Texture texture2 = ETC1Benchmarck.testSDKETC1ImageCompressor();
+		}		
 		tSdkImg = java.lang.System.currentTimeMillis() - tSdkImg;
 		
 		mBenchmarkResult.setText("Result: \n"
-				+ "1 Block 10*t : Rs " + tRs + " ms " + "Java "+tJava+" ms \n" + "SDK "+tSdk+" ms\n"
-				+ "Image 256*128 : Rs " + tRsImg + " ms " + "Java "+tJavaImg+" ms \n" + "SDK "+tSdkImg+" ms");
+				+ "1 Block 10*t : Rs N/A ms " + "Java " + tJava / 10.0 + " ms \n" + "SDK " + tSdk / 10.0 + " ms\n"
+				+ "Image 256*128 : Rs " + tRsImg / 10.0 + " ms " + "Java " + tJavaImg / 10.0 +" ms \n" + "SDK " + tSdkImg / 10.0 + " ms");
 
 	}
 	
