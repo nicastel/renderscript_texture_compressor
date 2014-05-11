@@ -140,6 +140,8 @@ public class RsETC1 {
 		aout2.copyFromUnchecked(arrayOut3Temp);
 		
 		aout2.copyTo(compressedImage.array());	
+		aout2.destroy();
+		
 		tFillOut = java.lang.System.currentTimeMillis() - tFillOut;
 		System.out.println("tFillOut : "+tFillOut+" ms");
 		
