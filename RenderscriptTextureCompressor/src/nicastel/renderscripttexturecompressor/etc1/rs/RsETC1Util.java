@@ -7,7 +7,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import com.example.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
+import nicastel.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 
 import android.opengl.ETC1;
 import android.opengl.GLES10;

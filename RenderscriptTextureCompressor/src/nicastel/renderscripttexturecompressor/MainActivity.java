@@ -22,8 +22,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.renderscripttexturecompressor.R;
-import com.example.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
+import nicastel.renderscripttexturecompressor.R;
+import nicastel.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 
 public class MainActivity extends Activity {
 

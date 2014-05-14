@@ -14,11 +14,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.opengl.ETC1;
 import android.opengl.ETC1Util.ETC1Texture;
-import android.support.v8.renderscript.Allocation;
-import android.support.v8.renderscript.Element;
 import android.support.v8.renderscript.RenderScript;
 
-import com.example.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
+import nicastel.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 
 public class ETC1Benchmarck {
 	private final static int mask = 8;

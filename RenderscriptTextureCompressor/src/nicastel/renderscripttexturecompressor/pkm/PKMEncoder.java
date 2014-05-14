@@ -16,7 +16,7 @@ import android.opengl.ETC1;
 import android.opengl.ETC1Util.ETC1Texture;
 import android.support.v8.renderscript.RenderScript;
 
-import com.example.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
+import nicastel.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 
 public class PKMEncoder {
 	public static ETC1Texture encodeTextureAsETC1_Sdk(InputStream stream)
