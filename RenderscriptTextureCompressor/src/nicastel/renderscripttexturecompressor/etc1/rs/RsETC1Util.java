@@ -1,4 +1,4 @@
-package com.example.renderscripttexturecompressor.etc1.java;
+package nicastel.renderscripttexturecompressor.etc1.rs;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,13 +7,17 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.example.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
+
+import android.opengl.ETC1;
 import android.opengl.GLES10;
+import android.support.v8.renderscript.RenderScript;
 
 /**
  * Utility methods for using ETC1 compressed textures.
  *
  */
-public class JavaETC1Util {
+public class RsETC1Util {
 	/**
      * Convenience method to load an ETC1 texture whether or not the active OpenGL context
      * supports the ETC1 texture compression format.
@@ -62,7 +66,7 @@ public class JavaETC1Util {
         Buffer data = texture.getData();
         if (isETC1Supported()) {
             int imageSize = data.remaining();
-            GLES10.glCompressedTexImage2D(target, level, JavaETC1.ETC1_RGB8_OES, width, height,
+            GLES10.glCompressedTexImage2D(target, level, RsETC1.ETC1_RGB8_OES, width, height,
                     border, imageSize, data);
         } else {
             boolean useShorts = fallbackType != GLES10.GL_UNSIGNED_BYTE;
@@ -70,7 +74,7 @@ public class JavaETC1Util {
             int stride = pixelSize * width;
             ByteBuffer decodedData = ByteBuffer.allocateDirect(stride*height)
                 .order(ByteOrder.nativeOrder());
-            JavaETC1.decodeImage((ByteBuffer) data, decodedData, width, height, pixelSize, stride);
+            ETC1.decodeImage((ByteBuffer) data, decodedData, width, height, pixelSize, stride);
             GLES10.glTexImage2D(target, level, fallbackFormat, width, height, border,
                     fallbackFormat, fallbackType, decodedData);
         }
@@ -89,7 +93,7 @@ public class JavaETC1Util {
         }
         GLES10.glGetIntegerv(GLES10.GL_COMPRESSED_TEXTURE_FORMATS, results, 0);
         for (int i = 0; i < numFormats; i++) {
-            if (results[i] == JavaETC1.ETC1_RGB8_OES) {
+            if (results[i] == RsETC1.ETC1_RGB8_OES) {
                 return true;
             }
         }
@@ -140,19 +144,19 @@ public class JavaETC1Util {
         int height = 0;
         byte[] ioBuffer = new byte[4096];
         {
-            if (input.read(ioBuffer, 0, JavaETC1.ETC_PKM_HEADER_SIZE) != JavaETC1.ETC_PKM_HEADER_SIZE) {
+            if (input.read(ioBuffer, 0, RsETC1.ETC_PKM_HEADER_SIZE) != RsETC1.ETC_PKM_HEADER_SIZE) {
                 throw new IOException("Unable to read PKM file header.");
             }
-            ByteBuffer headerBuffer = ByteBuffer.allocateDirect(JavaETC1.ETC_PKM_HEADER_SIZE)
+            ByteBuffer headerBuffer = ByteBuffer.allocateDirect(RsETC1.ETC_PKM_HEADER_SIZE)
                 .order(ByteOrder.nativeOrder());
-            headerBuffer.put(ioBuffer, 0, JavaETC1.ETC_PKM_HEADER_SIZE).position(0);
-            if (!JavaETC1.isValid(headerBuffer)) {
+            headerBuffer.put(ioBuffer, 0, RsETC1.ETC_PKM_HEADER_SIZE).position(0);
+            if (!RsETC1.isValid(headerBuffer)) {
                 throw new IOException("Not a PKM file.");
             }
-            width = JavaETC1.getWidth(headerBuffer);
-            height = JavaETC1.getHeight(headerBuffer);
+            width = RsETC1.getWidth(headerBuffer);
+            height = RsETC1.getHeight(headerBuffer);
         }
-        int encodedSize = JavaETC1.getEncodedDataSize(width, height);
+        int encodedSize = RsETC1.getEncodedDataSize(width, height);
         ByteBuffer dataBuffer = ByteBuffer.allocateDirect(encodedSize).order(ByteOrder.nativeOrder());
         for (int i = 0; i < encodedSize; ) {
             int chunkSize = Math.min(ioBuffer.length, encodedSize - i);
@@ -175,15 +179,15 @@ public class JavaETC1Util {
      * @param stride the width of a line of the image in bytes
      * @return the ETC1 texture.
      */
-    public static ETC1Texture compressTexture(Buffer input, int width, int height, int pixelSize, int stride){
-        int encodedImageSize = JavaETC1.getEncodedDataSize(width, height);
+    public static ETC1Texture compressTexture(RenderScript rs, ScriptC_etc1compressor script, Buffer input, int width, int height, int pixelSize, int stride){
+        int encodedImageSize = RsETC1.getEncodedDataSize(width, height);
         System.out.println("encodedImageSize : "+encodedImageSize);
         ByteBuffer compressedImage = ByteBuffer.allocateDirect(encodedImageSize).
             order(ByteOrder.nativeOrder());
         
         // TODO : there is a bug in the android sdk :
         // ETC1.encodeImage((ByteBuffer) input, width, height, 3, stride, compressedImage); should be
-        JavaETC1.encodeImage((ByteBuffer) input, width, height, pixelSize, stride, compressedImage);
+        RsETC1.encodeImage(rs, script, (ByteBuffer) input, width, height, pixelSize, stride, compressedImage);
         
         compressedImage.position(0);
         return new ETC1Texture(width, height, compressedImage);
@@ -203,12 +207,12 @@ public class JavaETC1Util {
         try {
             int width = texture.getWidth();
             int height = texture.getHeight();
-            ByteBuffer header = ByteBuffer.allocateDirect(JavaETC1.ETC_PKM_HEADER_SIZE).order(ByteOrder.nativeOrder());
-            JavaETC1.formatHeader(header, width, height);
+            ByteBuffer header = ByteBuffer.allocateDirect(RsETC1.ETC_PKM_HEADER_SIZE).order(ByteOrder.nativeOrder());
+            RsETC1.formatHeader(header, width, height);
             header.position(0);
             byte[] ioBuffer = new byte[4096];
-            header.get(ioBuffer, 0, JavaETC1.ETC_PKM_HEADER_SIZE);
-            output.write(ioBuffer, 0, JavaETC1.ETC_PKM_HEADER_SIZE);
+            header.get(ioBuffer, 0, RsETC1.ETC_PKM_HEADER_SIZE);
+            output.write(ioBuffer, 0, RsETC1.ETC_PKM_HEADER_SIZE);
             while (dataBuffer.remaining()>0) {
                 int chunkSize = Math.min(ioBuffer.length, dataBuffer.remaining());
                 dataBuffer.get(ioBuffer, 0, chunkSize);

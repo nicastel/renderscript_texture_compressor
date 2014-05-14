@@ -1,10 +1,13 @@
-package com.example.renderscripttexturecompressor.bench.etc1;
+package nicastel.renderscripttexturecompressor.bench.etc1;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import nicastel.renderscripttexturecompressor.etc1.java.JavaETC1;
+import nicastel.renderscripttexturecompressor.etc1.rs.RsETC1;
+import nicastel.renderscripttexturecompressor.pkm.PKMEncoder;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
@@ -15,10 +18,7 @@ import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.Element;
 import android.support.v8.renderscript.RenderScript;
 
-import com.example.renderscripttexturecompressor.etc1.java.JavaETC1;
-import com.example.renderscripttexturecompressor.etc1.rs.RsETC1;
 import com.example.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
-import com.example.renderscripttexturecompressor.pkm.PKMEncoder;
 
 public class ETC1Benchmarck {
 	private final static int mask = 8;

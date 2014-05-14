@@ -1,4 +1,4 @@
-package com.example.renderscripttexturecompressor.etc1.rs;
+package nicastel.renderscripttexturecompressor.etc1.rs;
 
 import java.nio.ByteBuffer;
 

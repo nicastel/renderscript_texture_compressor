@@ -1,4 +1,4 @@
-package com.example.renderscripttexturecompressor.pkm;
+package nicastel.renderscripttexturecompressor.pkm;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import nicastel.renderscripttexturecompressor.etc1.java.JavaETC1;
+import nicastel.renderscripttexturecompressor.etc1.rs.RsETC1;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
@@ -14,8 +16,6 @@ import android.opengl.ETC1;
 import android.opengl.ETC1Util.ETC1Texture;
 import android.support.v8.renderscript.RenderScript;
 
-import com.example.renderscripttexturecompressor.etc1.java.JavaETC1;
-import com.example.renderscripttexturecompressor.etc1.rs.RsETC1;
 import com.example.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 
 public class PKMEncoder {

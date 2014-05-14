@@ -1,9 +1,10 @@
-package com.example.renderscripttexturecompressor;
+package nicastel.renderscripttexturecompressor;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import nicastel.renderscripttexturecompressor.bench.etc1.ETC1Benchmarck;
 import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Bitmap;
@@ -21,7 +22,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.renderscripttexturecompressor.bench.etc1.ETC1Benchmarck;
+import com.example.renderscripttexturecompressor.R;
 import com.example.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 
 public class MainActivity extends Activity {
