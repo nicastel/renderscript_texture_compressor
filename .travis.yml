@@ -1,4 +1,5 @@
 language: android
+before_install: cd RenderscriptTextureCompressor
 android:
   components:
     - build-tools-19.0.3
