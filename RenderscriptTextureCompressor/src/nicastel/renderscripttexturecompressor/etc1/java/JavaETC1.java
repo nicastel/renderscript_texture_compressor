@@ -598,17 +598,9 @@ public class JavaETC1 {
 	            for (int cy = 0; cy < yEnd; cy++) {
 	            	int q = (cy * 4) * 3;
 	            	int p = pixelSize * x + stride * (y + cy);
-	                if (pixelSize == 3) {
-//	                	for (int cx = 0; cx < xEnd; cx++) {
-//	                        int pixel = ((pIn.get(p+2) & 0xFF) << 16) |((pIn.get(p+1) & 0xFF) << 8) | (pIn.get(p) & 0xFF);
-//	                        block[q++] = (byte) ((pixel >> 16) & 0xFF);
-//	                        block[q++] = (byte) ((pixel >> 8) & 0xFF);
-//	                        block[q++] = (byte) (pixel & 0xFF);
-//	                        p += pixelSize;
-//	                    }
+	                if (pixelSize == 3) {//	                	
 	                	pIn.position(p);
 	                	pIn.get(block, q, xEnd * 3);
-	                	System.arraycopy(pIn, p, block, q, xEnd * 3);
 	                } else {
 	                    for (int cx = 0; cx < xEnd; cx++) {
 	                    	int p1 = pIn.get(p+1) & 0xFF;
