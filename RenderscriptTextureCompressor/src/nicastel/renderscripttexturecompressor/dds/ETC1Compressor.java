@@ -99,8 +99,6 @@ public class ETC1Compressor implements DXTCompressor
     	bufferIn.rewind();       
     	
     	ByteBuffer bufferOut = ByteBuffer.allocateDirect(encodedImageSize);
-    	
-
         
         RsETC1.encodeImage(rs, script, bufferIn, image.getWidth(), image.getHeight(), image.getRowBytes()/image.getWidth(), image.getRowBytes(), bufferOut);
         
