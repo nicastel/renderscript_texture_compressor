@@ -183,7 +183,7 @@ public class ETC1Benchmarck {
 		// RGB_565 is 2 bytes per pixel
 		ETC1DDSCompressor compressor = new ETC1DDSCompressor();
 		
-		DXTCompressionAttributes attributes = compressor.getDefaultCompressionAttributes();
+		DXTCompressionAttributes attributes = ETC1DDSCompressor.getDefaultCompressionAttributes();
 		
 		ETC1Compressor.rs = rs;
 		ETC1Compressor.script = script;

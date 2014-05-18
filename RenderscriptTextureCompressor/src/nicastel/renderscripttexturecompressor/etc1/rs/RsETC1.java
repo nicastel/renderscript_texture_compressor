@@ -87,9 +87,6 @@ public class RsETC1 {
 		return (((width + 3) & ~3) * ((height + 3) & ~3)) >> 1;
 	}
 	
-	private static Allocation p00; // uchar3
-	private static Allocation aout; // uchar3
-	
 	/**
 	 * Encode an entire image. pIn - pointer to the image data. Formatted such
 	 * that the Red component of pixel (x,y) is at pIn + pixelSize * x + stride
@@ -113,16 +110,16 @@ public class RsETC1 {
 		
 		int size = width * height / (DECODED_BLOCK_SIZE / 3);
 		
-		p00 = Allocation.createSized(rs, Element.U8(rs), width * height * pixelSize);
-		aout = Allocation.createSized(rs, Element.U16_4(rs), size);
+		Allocation p00 = Allocation.createSized(rs, Element.U8(rs), width * height * pixelSize);
+		Allocation aout = Allocation.createSized(rs, Element.U16_4(rs), size);
 
 		tInitArray = java.lang.System.currentTimeMillis() - tInitArray;
 		System.out.println("tInitArray : "+tInitArray+" ms");
 		
 		long tFillAlloc = java.lang.System.currentTimeMillis();
-		fillAllocation(pIn.array());	
+		p00.copyFrom(pIn.array());	
 		
-		setAllocation(script);
+		script.bind_pInA(p00);
 		
 		tFillAlloc = java.lang.System.currentTimeMillis() - tFillAlloc;
 		System.out.println("tFillAlloc : "+tFillAlloc+" ms");
@@ -133,8 +130,12 @@ public class RsETC1 {
 		System.out.println("tExec : "+tExec+" ms");
 		
 		long tFillOut = java.lang.System.currentTimeMillis();
+		
+		p00.destroy();
+		
 		short[] arrayOut3Temp = new short[4*size];
 		aout.copyTo(arrayOut3Temp);
+		aout.destroy();
 		
 		Allocation aout2 = Allocation.createSized(rs, Element.U8(rs), 8*size);
 		aout2.copyFromUnchecked(arrayOut3Temp);
@@ -143,18 +144,12 @@ public class RsETC1 {
 		aout2.destroy();
 		
 		tFillOut = java.lang.System.currentTimeMillis() - tFillOut;
+		
+		compressedImage.rewind();
+		
 		System.out.println("tFillOut : "+tFillOut+" ms");
 		
-		compressedImage.position(0);
 		return 0;
-	}
-
-	private static void setAllocation(ScriptC_etc1compressor script) {
-		script.bind_pInA(p00);
-	}
-	
-	private static void fillAllocation(byte[] tIn) {		
-		p00.copyFrom(tIn);
 	}
 
 	static final byte kMagic[] = { 'P', 'K', 'M', ' ', '1', '0' };
