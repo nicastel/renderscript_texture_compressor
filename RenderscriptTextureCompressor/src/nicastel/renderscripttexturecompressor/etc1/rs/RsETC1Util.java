@@ -144,19 +144,19 @@ public class RsETC1Util {
         int height = 0;
         byte[] ioBuffer = new byte[4096];
         {
-            if (input.read(ioBuffer, 0, RsETC1.ETC_PKM_HEADER_SIZE) != RsETC1.ETC_PKM_HEADER_SIZE) {
+            if (input.read(ioBuffer, 0, ETC1.ETC_PKM_HEADER_SIZE) != ETC1.ETC_PKM_HEADER_SIZE) {
                 throw new IOException("Unable to read PKM file header.");
             }
-            ByteBuffer headerBuffer = ByteBuffer.allocateDirect(RsETC1.ETC_PKM_HEADER_SIZE)
+            ByteBuffer headerBuffer = ByteBuffer.allocateDirect(ETC1.ETC_PKM_HEADER_SIZE)
                 .order(ByteOrder.nativeOrder());
-            headerBuffer.put(ioBuffer, 0, RsETC1.ETC_PKM_HEADER_SIZE).position(0);
-            if (!RsETC1.isValid(headerBuffer)) {
+            headerBuffer.put(ioBuffer, 0, ETC1.ETC_PKM_HEADER_SIZE).position(0);
+            if (!ETC1.isValid(headerBuffer)) {
                 throw new IOException("Not a PKM file.");
             }
-            width = RsETC1.getWidth(headerBuffer);
-            height = RsETC1.getHeight(headerBuffer);
+            width = ETC1.getWidth(headerBuffer);
+            height = ETC1.getHeight(headerBuffer);
         }
-        int encodedSize = RsETC1.getEncodedDataSize(width, height);
+        int encodedSize = ETC1.getEncodedDataSize(width, height);
         ByteBuffer dataBuffer = ByteBuffer.allocateDirect(encodedSize).order(ByteOrder.nativeOrder());
         for (int i = 0; i < encodedSize; ) {
             int chunkSize = Math.min(ioBuffer.length, encodedSize - i);
@@ -207,12 +207,12 @@ public class RsETC1Util {
         try {
             int width = texture.getWidth();
             int height = texture.getHeight();
-            ByteBuffer header = ByteBuffer.allocateDirect(RsETC1.ETC_PKM_HEADER_SIZE).order(ByteOrder.nativeOrder());
-            RsETC1.formatHeader(header, width, height);
+            ByteBuffer header = ByteBuffer.allocateDirect(ETC1.ETC_PKM_HEADER_SIZE).order(ByteOrder.nativeOrder());
+            ETC1.formatHeader(header, width, height);
             header.position(0);
             byte[] ioBuffer = new byte[4096];
-            header.get(ioBuffer, 0, RsETC1.ETC_PKM_HEADER_SIZE);
-            output.write(ioBuffer, 0, RsETC1.ETC_PKM_HEADER_SIZE);
+            header.get(ioBuffer, 0, ETC1.ETC_PKM_HEADER_SIZE);
+            output.write(ioBuffer, 0, ETC1.ETC_PKM_HEADER_SIZE);
             while (dataBuffer.remaining()>0) {
                 int chunkSize = Math.min(ioBuffer.length, dataBuffer.remaining());
                 dataBuffer.get(ioBuffer, 0, chunkSize);
