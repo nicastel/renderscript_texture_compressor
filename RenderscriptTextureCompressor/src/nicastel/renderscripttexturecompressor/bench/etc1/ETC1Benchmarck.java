@@ -1,10 +1,15 @@
 package nicastel.renderscripttexturecompressor.bench.etc1;
 
+import gov.nasa.worldwind.util.dds.DXTCompressionAttributes;
+
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import nicastel.renderscripttexturecompressor.dds.ETC1Compressor;
+import nicastel.renderscripttexturecompressor.dds.ETC1DDSCompressor;
+import nicastel.renderscripttexturecompressor.dds.ETCConstants;
 import nicastel.renderscripttexturecompressor.etc1.java.JavaETC1;
 import nicastel.renderscripttexturecompressor.etc1.rs.RsETC1;
 import nicastel.renderscripttexturecompressor.pkm.PKMEncoder;
@@ -15,7 +20,6 @@ import android.graphics.BitmapFactory.Options;
 import android.opengl.ETC1;
 import android.opengl.ETC1Util.ETC1Texture;
 import android.support.v8.renderscript.RenderScript;
-
 import nicastel.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 
 public class ETC1Benchmarck {
@@ -172,5 +176,33 @@ public class ETC1Benchmarck {
 		// System.out.println("Texture PKM creation failed ");
 		
 		return texture;
+	}
+	
+	public static ByteBuffer testRsDDSETC1ImageCompressor(RenderScript rs,
+			ScriptC_etc1compressor script) {
+		// RGB_565 is 2 bytes per pixel
+		ETC1DDSCompressor compressor = new ETC1DDSCompressor();
+		
+		DXTCompressionAttributes attributes = ETC1DDSCompressor.getDefaultCompressionAttributes();
+		
+		ETC1Compressor.rs = rs;
+		ETC1Compressor.script = script;
+		
+		attributes.setDXTFormat(ETCConstants.D3DFMT_ETC1);
+		ByteBuffer ddsBuffer = compressor.compressImage(bitmap, attributes);
+		
+		// if (texture != null) {
+		// int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE
+		// + texture.getHeight() * texture.getWidth() / 2;
+		// File f = new
+		// File(Environment.getExternalStorageDirectory(),"bmngpkm.pkm");
+		// f.delete();
+		// f.createNewFile();
+		// ETC1Util.writeTexture(texture, new FileOutputStream(f));
+		// System.out.println("Texture PKM created ");
+		// }
+		// System.out.println("Texture PKM creation failed ");
+		
+		return ddsBuffer;
 	}
 }

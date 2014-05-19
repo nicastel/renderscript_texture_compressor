@@ -66,9 +66,15 @@ public class MainActivity extends Activity {
 		}		
 		tSdkImg = java.lang.System.currentTimeMillis() - tSdkImg;
 		
+		long tRsDDSImg = java.lang.System.currentTimeMillis();
+		for(int i = 0; i<10; i++) {
+			ByteBuffer buffer = ETC1Benchmarck.testRsDDSETC1ImageCompressor(mRS, script);
+		}		
+		tRsDDSImg = java.lang.System.currentTimeMillis() - tRsDDSImg;
+		
 		mBenchmarkResult.setText("Result: \n"
 				+ "1 Block 10*t : Rs N/A ms " + "Java " + tJava / 10.0 + " ms \n" + "SDK " + tSdk / 10.0 + " ms\n"
-				+ "Image 256*128 : Rs " + tRsImg / 10.0 + " ms " + "Java " + tJavaImg / 10.0 +" ms \n" + "SDK " + tSdkImg / 10.0 + " ms");
+				+ "Image 256*128 : Rs PKM " + tRsImg / 10.0 + " ms Rs DDS " + tRsDDSImg / 10.0 + " ms Java " + tJavaImg / 10.0 +" ms \n" + "SDK " + tSdkImg / 10.0 + " ms");
 
 	}
 	
