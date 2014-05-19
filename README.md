@@ -3,7 +3,12 @@ RenderscriptTextureCompressor provide utility kernel in order to be able to perf
 
 ## License
 
-RenderscriptTextureCompressor licensed under the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html).
+RenderscriptTextureCompressor is licensed under the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html).
+
+## Why should I use this library?
+Well hopefully in the future such utility kernels will be implemented directly into the Android SDK. I have fill an enhancement request to the Android bug tracker, please vote for it : https://code.google.com/p/android/issues/detail?id=69792
+
+In the meantime this library will provide you a faster way of compressing ETC1 texture with additionnal functionnalitys compared to the ETC1 utilities found in the Android SDK.
 
 ## Why should I use compressed texture?
 
@@ -19,11 +24,6 @@ ETC2 is an enhanced version of the ETC1 format (better quality, proper support f
 
 ## Why RenderScript?
 Renderscript is a standard way in the Android World to parallelize code execution in order to obtain the better performance from the hardware. Trough the support library it is available to API level 8 (Android 2.2) or higher.
-
-## Why should I use this library?
-Well hopefully in the future such utility kernels will be implemented directly into the Android SDK. I have fill an enhancement request to the Android bug tracker, please vote for it : https://code.google.com/p/android/issues/detail?id=69792
-
-In the meantime this library will provide you a faster way of compressing ETC1 texture with additionnal functionnalitys compared to the ETC1 utilities found in the Android SDK.
 
 ## Feature
 
