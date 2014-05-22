@@ -18,6 +18,8 @@ import java.nio.ByteOrder;
 import nicastel.renderscripttexturecompressor.etc1.rs.RsETC1;
 import nicastel.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 import android.graphics.Bitmap;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Allocation.MipmapControl;
 import android.support.v8.renderscript.RenderScript;
 
 /**
@@ -92,15 +94,17 @@ public class ETC1Compressor implements DXTCompressor
         System.out.println("encodedImageSize : "+encodedImageSize);
         
         // TODO
-    	ByteBuffer bufferIn = ByteBuffer.allocateDirect(
-    			image.getRowBytes() * image.getHeight()).order(
-				ByteOrder.nativeOrder());
-    	image.copyPixelsToBuffer(bufferIn);
-    	bufferIn.rewind();       
+//    	ByteBuffer bufferIn = ByteBuffer.allocateDirect(
+//    			image.getRowBytes() * image.getHeight()).order(
+//				ByteOrder.nativeOrder());
+//    	image.copyPixelsToBuffer(bufferIn);
+//    	bufferIn.rewind();       
+    	
+    	Allocation alloc = Allocation.createFromBitmap(rs, image, MipmapControl.MIPMAP_NONE, Allocation.USAGE_SHARED);
     	
     	ByteBuffer bufferOut = ByteBuffer.allocateDirect(encodedImageSize);
         
-        RsETC1.encodeImage(rs, script, bufferIn, image.getWidth(), image.getHeight(), image.getRowBytes()/image.getWidth(), image.getRowBytes(), bufferOut);
+        RsETC1.encodeImage(rs, script, alloc, image.getWidth(), image.getHeight(), image.getRowBytes()/image.getWidth(), image.getRowBytes(), bufferOut);
         
         bufferOut.rewind();   
         

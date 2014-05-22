@@ -19,7 +19,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.opengl.ETC1;
 import android.opengl.ETC1Util.ETC1Texture;
+import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.Allocation.MipmapControl;
 import nicastel.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 
 public class ETC1Benchmarck {
@@ -155,8 +157,11 @@ public class ETC1Benchmarck {
 
 	public static ETC1Texture testRsETC1ImageCompressor(RenderScript rs,
 			ScriptC_etc1compressor script) {
+		
+		Allocation alloc = Allocation.createFromBitmap(rs, bitmap, MipmapControl.MIPMAP_NONE, Allocation.USAGE_SHARED);
+
 		// RGB_565 is 2 bytes per pixel
-		RsETC1.encodeImage(rs, script, buffer, bitmap.getWidth(), bitmap.getHeight(), 2,
+		RsETC1.encodeImage(rs, script, alloc, bitmap.getWidth(), bitmap.getHeight(), 2,
 				2 * bitmap.getWidth(), compressedImage);
 
 		ETC1Texture texture = new ETC1Texture(bitmap.getWidth(),

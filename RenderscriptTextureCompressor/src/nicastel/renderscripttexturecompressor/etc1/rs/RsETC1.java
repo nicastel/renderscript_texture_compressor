@@ -2,10 +2,11 @@ package nicastel.renderscripttexturecompressor.etc1.rs;
 
 import java.nio.ByteBuffer;
 
-import nicastel.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
-import android.support.v8.renderscript.RenderScript;
+import android.graphics.Bitmap;
 import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Allocation.MipmapControl;
 import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.RenderScript;
 
 public class RsETC1 {
 	// Copyright 2009 Google Inc.
@@ -53,7 +54,7 @@ public class RsETC1 {
 	 * store entire encoded image.
 	 * @param script 
 	 */
-	public static int encodeImage(RenderScript rs, ScriptC_etc1compressor script, ByteBuffer pIn, int width, int height,
+	public static int encodeImage(RenderScript rs, ScriptC_etc1compressor script, Allocation aIn, int width, int height,
 			int pixelSize, int stride, ByteBuffer compressedImage) {
 		
 		long tInitArray = java.lang.System.currentTimeMillis();
@@ -68,18 +69,13 @@ public class RsETC1 {
 		// int iOut = 0;
 		
 		int size = Math.max(width * height / (DECODED_BLOCK_SIZE / 3), 1);
-		
-		Allocation p00 = Allocation.createSized(rs, Element.U8(rs), width * height * pixelSize);
 		Allocation aout = Allocation.createSized(rs, Element.U16_4(rs), size);
 
 		tInitArray = java.lang.System.currentTimeMillis() - tInitArray;
 		System.out.println("tInitArray : "+tInitArray+" ms");
 		
-		long tFillAlloc = java.lang.System.currentTimeMillis();
-		p00.copyFrom(pIn.array());	
-		
-		script.bind_pInA(p00);
-		
+		long tFillAlloc = java.lang.System.currentTimeMillis();		
+		script.bind_pInA(aIn);		
 		tFillAlloc = java.lang.System.currentTimeMillis() - tFillAlloc;
 		System.out.println("tFillAlloc : "+tFillAlloc+" ms");
 		
@@ -89,8 +85,6 @@ public class RsETC1 {
 		System.out.println("tExec : "+tExec+" ms");
 		
 		long tFillOut = java.lang.System.currentTimeMillis();
-		
-		p00.destroy();
 		
 		short[] arrayOut3Temp = new short[4*size];
 		aout.copyTo(arrayOut3Temp);
@@ -110,5 +104,7 @@ public class RsETC1 {
 		
 		return 0;
 	}
+	
+	
 
 }

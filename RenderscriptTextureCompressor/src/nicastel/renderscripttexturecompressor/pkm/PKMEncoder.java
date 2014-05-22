@@ -14,8 +14,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.opengl.ETC1;
 import android.opengl.ETC1Util.ETC1Texture;
+import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.RenderScript;
-
+import android.support.v8.renderscript.Allocation.MipmapControl;
 import nicastel.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 
 public class PKMEncoder {
@@ -112,12 +113,6 @@ public class PKMEncoder {
 		opts.inPreferredConfig = Config.RGB_565;
 		Bitmap bitmap = BitmapFactory.decodeStream(stream, null, opts);
 		if (bitmap != null) {
-			ByteBuffer buffer = ByteBuffer.allocateDirect(
-					bitmap.getRowBytes() * bitmap.getHeight()).order(
-					ByteOrder.nativeOrder());
-			bitmap.copyPixelsToBuffer(buffer);
-			buffer.position(0);
-
 			System.out.println("Width : " + bitmap.getWidth());
 			System.out.println("Height : " + bitmap.getHeight());
 			System.out.println("Config : " + bitmap.getConfig());
@@ -133,8 +128,10 @@ public class PKMEncoder {
 			ByteBuffer compressedImage = ByteBuffer.allocateDirect(
 					encodedImageSize).order(ByteOrder.nativeOrder());
 			// RGB_565 is 2 bytes per pixel
+			
+			Allocation alloc = Allocation.createFromBitmap(rs, bitmap, MipmapControl.MIPMAP_NONE, Allocation.USAGE_SHARED);
 
-			RsETC1.encodeImage(rs, script, buffer, bitmap.getWidth(), bitmap.getHeight(),
+			RsETC1.encodeImage(rs, script, alloc, bitmap.getWidth(), bitmap.getHeight(),
 					2, 2 * bitmap.getWidth(), compressedImage);
 
 			ETC1Texture texture = new ETC1Texture(bitmap.getWidth(),

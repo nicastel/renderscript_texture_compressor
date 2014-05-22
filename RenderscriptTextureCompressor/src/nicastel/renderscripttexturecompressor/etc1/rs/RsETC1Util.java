@@ -8,9 +8,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import nicastel.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
-
 import android.opengl.ETC1;
 import android.opengl.GLES10;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Element;
 import android.support.v8.renderscript.RenderScript;
 
 /**
@@ -184,10 +185,13 @@ public class RsETC1Util {
         System.out.println("encodedImageSize : "+encodedImageSize);
         ByteBuffer compressedImage = ByteBuffer.allocateDirect(encodedImageSize).
             order(ByteOrder.nativeOrder());
-        
+        Allocation p00 = Allocation.createSized(rs, Element.U8(rs), width * height * pixelSize);
+		p00.copyFrom(((ByteBuffer)input).array());	
+		
         // TODO : there is a bug in the android sdk :
         // ETC1.encodeImage((ByteBuffer) input, width, height, 3, stride, compressedImage); should be
-        RsETC1.encodeImage(rs, script, (ByteBuffer) input, width, height, pixelSize, stride, compressedImage);
+        RsETC1.encodeImage(rs, script, p00, width, height, pixelSize, stride, compressedImage);
+        p00.destroy();
         
         compressedImage.position(0);
         return new ETC1Texture(width, height, compressedImage);
