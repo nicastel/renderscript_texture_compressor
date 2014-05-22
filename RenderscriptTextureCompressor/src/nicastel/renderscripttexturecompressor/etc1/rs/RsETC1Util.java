@@ -193,7 +193,7 @@ public class RsETC1Util {
         RsETC1.encodeImage(rs, script, p00, width, height, pixelSize, stride, compressedImage);
         p00.destroy();
         
-        compressedImage.position(0);
+        compressedImage.rewind();
         return new ETC1Texture(width, height, compressedImage);
     }
 

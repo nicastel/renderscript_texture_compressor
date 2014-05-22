@@ -137,6 +137,8 @@ public class PKMEncoder {
 			ETC1Texture texture = new ETC1Texture(bitmap.getWidth(),
 					bitmap.getHeight(), compressedImage);
 
+			alloc.destroy();
+			
 			return texture;
 		}
 		return null;

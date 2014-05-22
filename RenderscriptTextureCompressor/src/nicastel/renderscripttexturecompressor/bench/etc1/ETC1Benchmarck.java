@@ -167,7 +167,8 @@ public class ETC1Benchmarck {
 		ETC1Texture texture = new ETC1Texture(bitmap.getWidth(),
 				bitmap.getHeight(), compressedImage);
 		
-		buffer.rewind();
+		alloc.destroy();
+		
 		// if (texture != null) {
 		// int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE
 		// + texture.getHeight() * texture.getWidth() / 2;

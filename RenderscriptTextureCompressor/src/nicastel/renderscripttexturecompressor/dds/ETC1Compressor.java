@@ -106,6 +106,8 @@ public class ETC1Compressor implements DXTCompressor
         
         RsETC1.encodeImage(rs, script, alloc, image.getWidth(), image.getHeight(), image.getRowBytes()/image.getWidth(), image.getRowBytes(), bufferOut);
         
+        alloc.destroy();
+        
         bufferOut.rewind();   
         
         buffer.put(bufferOut);        
