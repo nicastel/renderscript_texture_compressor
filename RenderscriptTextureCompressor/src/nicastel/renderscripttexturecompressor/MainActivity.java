@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
     private ImageView mDisplayView;
     private Bitmap mBitmapOut;
 
-	public void benchmark(View v) {
+	public void benchmark(View v) {		
 		long tJava = java.lang.System.currentTimeMillis();
 		for(int i = 0; i<10; i++) {
 			ETC1Benchmarck.testJavaETC1BlockCompressor();

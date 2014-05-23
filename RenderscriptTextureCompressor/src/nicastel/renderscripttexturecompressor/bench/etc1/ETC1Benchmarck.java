@@ -79,7 +79,7 @@ public class ETC1Benchmarck {
 		// stream.mark(1024);
 		Options opts = new BitmapFactory.Options();
 		// opts.inPremultiplied = false;
-		opts.inPreferredConfig = Config.RGB_565;
+		opts.inPreferredConfig = Config.ARGB_8888;
 		bitmap = BitmapFactory.decodeStream(input, null, opts);
 		if (bitmap != null) {
 			buffer = ByteBuffer.allocateDirect(
@@ -92,11 +92,11 @@ public class ETC1Benchmarck {
 			System.out.println("Height : " + bitmap.getHeight());
 			System.out.println("Config : " + bitmap.getConfig());
 
-			if (bitmap.getConfig() == Bitmap.Config.ARGB_4444
-					|| bitmap.getConfig() == Bitmap.Config.ARGB_8888) {
-				System.out.println("Texture need aplha channel");
-				return;
-			}
+//			if (bitmap.getConfig() == Bitmap.Config.ARGB_4444
+//					|| bitmap.getConfig() == Bitmap.Config.ARGB_8888) {
+//				System.out.println("Texture need aplha channel");
+//				return;
+//			}
 
 			final int encodedImageSize = ETC1.getEncodedDataSize(
 					bitmap.getWidth(), bitmap.getHeight());
@@ -161,8 +161,8 @@ public class ETC1Benchmarck {
 		Allocation alloc = Allocation.createFromBitmap(rs, bitmap, MipmapControl.MIPMAP_NONE, Allocation.USAGE_SHARED);
 
 		// RGB_565 is 2 bytes per pixel
-		RsETC1.encodeImage(rs, script, alloc, bitmap.getWidth(), bitmap.getHeight(), 2,
-				2 * bitmap.getWidth(), compressedImage);
+		RsETC1.encodeImage(rs, script, alloc, bitmap.getWidth(), bitmap.getHeight(), 4,
+				4 * bitmap.getWidth(), compressedImage, false);
 
 		ETC1Texture texture = new ETC1Texture(bitmap.getWidth(),
 				bitmap.getHeight(), compressedImage);

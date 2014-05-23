@@ -30,7 +30,7 @@ public class RsETC1 {
 	public static final int ENCODED_BLOCK_SIZE = 8;
 
 	/**
-	 * Size in bytes of a decoded block.
+	 * Size in pixel of a decoded block.
 	 */
 	public static final int DECODED_BLOCK_SIZE = 48;
 
@@ -53,22 +53,25 @@ public class RsETC1 {
 	 * * y + redOffset; pOut - pointer to encoded data. Must be large enough to
 	 * store entire encoded image.
 	 * @param script 
+	 * @param containMipmaps 
 	 */
 	public static int encodeImage(RenderScript rs, ScriptC_etc1compressor script, Allocation aIn, int width, int height,
-			int pixelSize, int stride, ByteBuffer compressedImage) {
+			int pixelSize, int stride, ByteBuffer compressedImage, boolean containMipmaps) {
 		
 		long tInitArray = java.lang.System.currentTimeMillis();
 		
 		script.set_height(height);
 		script.set_width(width);
+		script.set_containMipmaps(containMipmaps);
+		script.set_pixelSize(pixelSize);
 		
-		if (pixelSize < 2 || pixelSize > 3) {
+		if (pixelSize < 2 || pixelSize > 4) {
 			return -1;
 		}
-
+		
 		// int iOut = 0;
 		
-		int size = Math.max(width * height / (DECODED_BLOCK_SIZE / 3), 1);
+		int size = Math.max(aIn.getBytesSize() / ((DECODED_BLOCK_SIZE/3)*pixelSize), 1);
 		Allocation aout = Allocation.createSized(rs, Element.U16_4(rs), size);
 
 		tInitArray = java.lang.System.currentTimeMillis() - tInitArray;

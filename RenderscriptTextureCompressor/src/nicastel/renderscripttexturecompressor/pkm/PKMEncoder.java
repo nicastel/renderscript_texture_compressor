@@ -132,7 +132,7 @@ public class PKMEncoder {
 			Allocation alloc = Allocation.createFromBitmap(rs, bitmap, MipmapControl.MIPMAP_NONE, Allocation.USAGE_SHARED);
 
 			RsETC1.encodeImage(rs, script, alloc, bitmap.getWidth(), bitmap.getHeight(),
-					2, 2 * bitmap.getWidth(), compressedImage);
+					2, 2 * bitmap.getWidth(), compressedImage, false);
 
 			ETC1Texture texture = new ETC1Texture(bitmap.getWidth(),
 					bitmap.getHeight(), compressedImage);

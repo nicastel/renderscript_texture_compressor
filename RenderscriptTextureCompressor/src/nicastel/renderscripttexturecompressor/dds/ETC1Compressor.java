@@ -87,24 +87,32 @@ public class ETC1Compressor implements DXTCompressor
         }
         
         // TODO
-	   	int width = Math.max(image.getWidth(), 4);
-	    int height = Math.max(image.getHeight(), 4);
-        
-        int encodedImageSize = RsETC1.getEncodedDataSize(width, height);
-        System.out.println("encodedImageSize : "+encodedImageSize);
-        
-        // TODO
 //    	ByteBuffer bufferIn = ByteBuffer.allocateDirect(
 //    			image.getRowBytes() * image.getHeight()).order(
 //				ByteOrder.nativeOrder());
 //    	image.copyPixelsToBuffer(bufferIn);
 //    	bufferIn.rewind();       
+        
+        MipmapControl control = MipmapControl.MIPMAP_NONE;
+        int usage = Allocation.USAGE_SHARED;
+        if(attributes.isBuildMipmaps()) {
+        	// Needs an ARGB 8888 Bitmap as input
+        	control = MipmapControl.MIPMAP_FULL;
+        	usage = Allocation.USAGE_SCRIPT;
+        	
+        }
     	
-    	Allocation alloc = Allocation.createFromBitmap(rs, image, MipmapControl.MIPMAP_NONE, Allocation.USAGE_SHARED);
+    	Allocation alloc = Allocation.createFromBitmap(rs, image, control, usage);
+    	alloc.generateMipmaps();
+    	
+    	int pixelSize = image.getRowBytes()/image.getWidth();
+    	
+    	int encodedImageSize =  Math.max(alloc.getBytesSize() / ((RsETC1.DECODED_BLOCK_SIZE/3)*pixelSize), 1)*8;
+        System.out.println("encodedImageSize : "+encodedImageSize);
     	
     	ByteBuffer bufferOut = ByteBuffer.allocateDirect(encodedImageSize);
         
-        RsETC1.encodeImage(rs, script, alloc, image.getWidth(), image.getHeight(), image.getRowBytes()/image.getWidth(), image.getRowBytes(), bufferOut);
+        RsETC1.encodeImage(rs, script, alloc, image.getWidth(), image.getHeight(), pixelSize, image.getRowBytes(), bufferOut, attributes.isBuildMipmaps());
         
         alloc.destroy();
         
