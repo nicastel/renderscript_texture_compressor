@@ -3,6 +3,7 @@ package nicastel.renderscripttexturecompressor.bench.etc1;
 import gov.nasa.worldwind.util.dds.DXTCompressionAttributes;
 
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -27,6 +28,7 @@ import nicastel.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 public class ETC1Benchmarck {
 	private final static int mask = 8;
 	private static ByteBuffer compressedImage;
+	private static Bitmap bitmapARGB;
 	private static Bitmap bitmap;
 	private static ByteBuffer buffer;
 
@@ -65,7 +67,7 @@ public class ETC1Benchmarck {
 	}
 
 	public static void initBuffer() {
-		InputStream input = PKMEncoder.class
+		InputStream input2 = PKMEncoder.class
 				//.getResourceAsStream("/testdata/block.jpg");
 				.getResourceAsStream("/testdata/world.topo.bathy.200405.3x256x128.jpg");
 		// Wrap the stream in a BufferedInputStream to provide the
@@ -73,14 +75,11 @@ public class ETC1Benchmarck {
 		// avoid destroying the stream when it is read more than once.
 		// BufferedInputStream also improves
 		// file read performance.
-		if (!(input instanceof BufferedInputStream))
-			input = new BufferedInputStream(input);
-		// stream.reset();
-		// stream.mark(1024);
+		if (!(input2 instanceof BufferedInputStream))
+			input2 = new BufferedInputStream(input2);
 		Options opts = new BitmapFactory.Options();
-		// opts.inPremultiplied = false;
-		opts.inPreferredConfig = Config.ARGB_8888;
-		bitmap = BitmapFactory.decodeStream(input, null, opts);
+		opts.inPreferredConfig = Config.RGB_565;
+		bitmap = BitmapFactory.decodeStream(input2, null, opts);
 		if (bitmap != null) {
 			buffer = ByteBuffer.allocateDirect(
 					bitmap.getRowBytes() * bitmap.getHeight()).order(
@@ -103,6 +102,29 @@ public class ETC1Benchmarck {
 			compressedImage = ByteBuffer.allocateDirect(encodedImageSize)
 					.order(ByteOrder.nativeOrder());
 		}
+		try {
+			input2.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		InputStream input = PKMEncoder.class
+				//.getResourceAsStream("/testdata/block.jpg");
+				.getResourceAsStream("/testdata/world.topo.bathy.200405.3x256x128.jpg");
+		// Wrap the stream in a BufferedInputStream to provide the
+		// mark/reset capability required to
+		// avoid destroying the stream when it is read more than once.
+		// BufferedInputStream also improves
+		// file read performance.
+		if (!(input instanceof BufferedInputStream))
+			input = new BufferedInputStream(input);
+		// stream.reset();
+		// stream.mark(1024);
+		Options opts2 = new BitmapFactory.Options();
+		// opts.inPremultiplied = false;
+		opts.inPreferredConfig = Config.ARGB_8888;
+		bitmapARGB = BitmapFactory.decodeStream(input, null, opts);
 	}
 
 	public static ETC1Texture testSDKETC1ImageCompressor() {
@@ -158,14 +180,14 @@ public class ETC1Benchmarck {
 	public static ETC1Texture testRsETC1ImageCompressor(RenderScript rs,
 			ScriptC_etc1compressor script) {
 		
-		Allocation alloc = Allocation.createFromBitmap(rs, bitmap, MipmapControl.MIPMAP_NONE, Allocation.USAGE_SHARED);
+		Allocation alloc = Allocation.createFromBitmap(rs, bitmapARGB, MipmapControl.MIPMAP_NONE, Allocation.USAGE_SHARED);
 
 		// RGB_565 is 2 bytes per pixel
-		RsETC1.encodeImage(rs, script, alloc, bitmap.getWidth(), bitmap.getHeight(), 4,
-				4 * bitmap.getWidth(), compressedImage, false);
+		RsETC1.encodeImage(rs, script, alloc, bitmapARGB.getWidth(), bitmapARGB.getHeight(), 4,
+				4 * bitmapARGB.getWidth(), compressedImage, false);
 
-		ETC1Texture texture = new ETC1Texture(bitmap.getWidth(),
-				bitmap.getHeight(), compressedImage);
+		ETC1Texture texture = new ETC1Texture(bitmapARGB.getWidth(),
+				bitmapARGB.getHeight(), compressedImage);
 		
 		alloc.destroy();
 		
@@ -195,7 +217,7 @@ public class ETC1Benchmarck {
 		ETC1Compressor.script = script;
 		
 		attributes.setDXTFormat(ETCConstants.D3DFMT_ETC1);
-		ByteBuffer ddsBuffer = compressor.compressImage(bitmap, attributes);
+		ByteBuffer ddsBuffer = compressor.compressImage(bitmapARGB, attributes);
 		
 		// if (texture != null) {
 		// int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE

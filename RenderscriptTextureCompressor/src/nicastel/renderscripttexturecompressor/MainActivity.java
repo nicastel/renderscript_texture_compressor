@@ -34,6 +34,12 @@ public class MainActivity extends Activity {
     private Bitmap mBitmapOut;
 
 	public void benchmark(View v) {		
+		long tRsDDSImg = java.lang.System.currentTimeMillis();
+		for(int i = 0; i<10; i++) {
+			ByteBuffer buffer = ETC1Benchmarck.testRsDDSETC1ImageCompressor(mRS, script);
+		}		
+		tRsDDSImg = java.lang.System.currentTimeMillis() - tRsDDSImg;
+		
 		long tJava = java.lang.System.currentTimeMillis();
 		for(int i = 0; i<10; i++) {
 			ETC1Benchmarck.testJavaETC1BlockCompressor();
@@ -66,11 +72,7 @@ public class MainActivity extends Activity {
 		}		
 		tSdkImg = java.lang.System.currentTimeMillis() - tSdkImg;
 		
-		long tRsDDSImg = java.lang.System.currentTimeMillis();
-		for(int i = 0; i<10; i++) {
-			ByteBuffer buffer = ETC1Benchmarck.testRsDDSETC1ImageCompressor(mRS, script);
-		}		
-		tRsDDSImg = java.lang.System.currentTimeMillis() - tRsDDSImg;
+
 		
 		mBenchmarkResult.setText("Result: \n"
 				+ "1 Block 10*t : Rs N/A ms " + "Java " + tJava / 10.0 + " ms \n" + "SDK " + tSdk / 10.0 + " ms\n"

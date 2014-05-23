@@ -583,10 +583,10 @@ static etc1_uint32 pullBlockAndMask_from_Raster(uint32_t pixelSize, uint32_t bn,
 	            p += pixelSize;
 			} else {
 				// ARGB 8888
-				// alpha p[0];
+				// alpha p[3];
+	            *q++ = p[0];
 	            *q++ = p[1];
 	            *q++ = p[2];
-	            *q++ = p[3];
 	            p += pixelSize;
 			}
 		}

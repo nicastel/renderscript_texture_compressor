@@ -75,17 +75,17 @@ public class RsETC1 {
 		Allocation aout = Allocation.createSized(rs, Element.U16_4(rs), size);
 
 		tInitArray = java.lang.System.currentTimeMillis() - tInitArray;
-		System.out.println("tInitArray : "+tInitArray+" ms");
+		//System.out.println("tInitArray : "+tInitArray+" ms");
 		
 		long tFillAlloc = java.lang.System.currentTimeMillis();		
 		script.bind_pInA(aIn);		
 		tFillAlloc = java.lang.System.currentTimeMillis() - tFillAlloc;
-		System.out.println("tFillAlloc : "+tFillAlloc+" ms");
+		//System.out.println("tFillAlloc : "+tFillAlloc+" ms");
 		
 		long tExec = java.lang.System.currentTimeMillis();
 		script.forEach_root(aout);
 		tExec = java.lang.System.currentTimeMillis() - tExec;
-		System.out.println("tExec : "+tExec+" ms");
+		//System.out.println("tExec : "+tExec+" ms");
 		
 		long tFillOut = java.lang.System.currentTimeMillis();
 		
@@ -103,7 +103,7 @@ public class RsETC1 {
 		
 		compressedImage.rewind();
 		
-		System.out.println("tFillOut : "+tFillOut+" ms");
+		//System.out.println("tFillOut : "+tFillOut+" ms");
 		
 		return 0;
 	}

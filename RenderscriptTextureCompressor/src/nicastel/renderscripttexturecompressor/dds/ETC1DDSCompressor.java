@@ -95,7 +95,7 @@ public class ETC1DDSCompressor extends DDSCompressor {
 					width /= 2;
 					height /= 2;
 				}
-				System.out.println("fileSize : "+fileSize);
+				//System.out.println("fileSize : "+fileSize);
 			} else {
 				for (Bitmap mipMapImage : mipMapLevels) {
 					fileSize += compressor.getCompressedSize(mipMapImage, attributes);

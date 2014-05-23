@@ -108,7 +108,7 @@ public class ETC1Compressor implements DXTCompressor
     	int pixelSize = image.getRowBytes()/image.getWidth();
     	
     	int encodedImageSize =  Math.max(alloc.getBytesSize() / ((RsETC1.DECODED_BLOCK_SIZE/3)*pixelSize), 1)*8;
-        System.out.println("encodedImageSize : "+encodedImageSize);
+        //System.out.println("encodedImageSize : "+encodedImageSize);
     	
     	ByteBuffer bufferOut = ByteBuffer.allocateDirect(encodedImageSize);
         
