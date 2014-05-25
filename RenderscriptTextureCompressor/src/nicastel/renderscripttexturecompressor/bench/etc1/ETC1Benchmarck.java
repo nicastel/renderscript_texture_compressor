@@ -1,5 +1,6 @@
 package nicastel.renderscripttexturecompressor.bench.etc1;
 
+import gov.nasa.worldwind.util.dds.DDSCompressor;
 import gov.nasa.worldwind.util.dds.DXTCompressionAttributes;
 
 import java.io.BufferedInputStream;
@@ -13,6 +14,7 @@ import nicastel.renderscripttexturecompressor.dds.ETC1DDSCompressor;
 import nicastel.renderscripttexturecompressor.dds.ETCConstants;
 import nicastel.renderscripttexturecompressor.etc1.java.JavaETC1;
 import nicastel.renderscripttexturecompressor.etc1.rs.RsETC1;
+import nicastel.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
 import nicastel.renderscripttexturecompressor.pkm.PKMEncoder;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -21,9 +23,8 @@ import android.graphics.BitmapFactory.Options;
 import android.opengl.ETC1;
 import android.opengl.ETC1Util.ETC1Texture;
 import android.support.v8.renderscript.Allocation;
-import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.Allocation.MipmapControl;
-import nicastel.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
+import android.support.v8.renderscript.RenderScript;
 
 public class ETC1Benchmarck {
 	private final static int mask = 8;
@@ -211,7 +212,7 @@ public class ETC1Benchmarck {
 		// RGB_565 is 2 bytes per pixel
 		ETC1DDSCompressor compressor = new ETC1DDSCompressor();
 		
-		DXTCompressionAttributes attributes = ETC1DDSCompressor.getDefaultCompressionAttributes();
+		DXTCompressionAttributes attributes = DDSCompressor.getDefaultCompressionAttributes();
 		
 		ETC1Compressor.rs = rs;
 		ETC1Compressor.script = script;

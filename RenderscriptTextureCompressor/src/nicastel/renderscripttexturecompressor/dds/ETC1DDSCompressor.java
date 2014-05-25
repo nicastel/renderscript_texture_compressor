@@ -97,7 +97,53 @@ public class ETC1DDSCompressor {
 			throw new IllegalArgumentException(message);
 		}
 
-		return compressImageBuffer(imageBuffer, DDSCompressor.getDefaultCompressionAttributes());
+		return compressImageBuffer(imageBuffer, ETC1DDSCompressor.getDefaultCompressionAttributes());
+	}
+	
+	/**
+	 * Returns the default compression attributes. The default DXT compression attributes are defined as follows:
+	 * <table>
+	 * <tr>
+	 * <th>Attribute</th>
+	 * <th>Value</th>
+	 * </tr>
+	 * <tr>
+	 * <td>Build Mipmaps</td>
+	 * <td>true</td>
+	 * </tr>
+	 * <tr>
+	 * <td>Premultiply Alpha</td>
+	 * <td>true</td>
+	 * </tr>
+	 * <tr>
+	 * <td>DXT Format</td>
+	 * <td>Let DDSCompressor choose optimal format.</td>
+	 * </tr>
+	 * <tr>
+	 * <td>Enable DXT1 Alpha</td>
+	 * <td>false</td>
+	 * </tr>
+	 * <tr>
+	 * <td>DXT1 Alpha Threshold</td>
+	 * <td>128</td>
+	 * </tr>
+	 * <tr>
+	 * <td>Compression Algorithm</td>
+	 * <td>Euclidean Distance</td>
+	 * </tr>
+	 * </table>
+	 * 
+	 * @return the default compression attributes.
+	 */
+	public static DXTCompressionAttributes getDefaultCompressionAttributes() {
+		DXTCompressionAttributes attributes = new DXTCompressionAttributes();
+		
+		// TODO solve mipmap corruption bug
+		attributes.setBuildMipmaps(false); // Always build mipmaps.
+		
+		attributes.setPremultiplyAlpha(true); // Always create premultiplied alpha format files..
+		attributes.setDXTFormat(ETCConstants.D3DFMT_ETC1); // Allow the DDSCompressor to choose the appropriate DXT format.
+		return attributes;
 	}
 	
 	/**
@@ -323,6 +369,9 @@ public class ETC1DDSCompressor {
 			header.setMipMapCount(1+maxLevel);
 		} else {
 			fileSize += compressor.getCompressedSize(image, attributes);
+			
+			header.setFlags(header.getFlags() | DDSConstants.DDSD_MIPMAPCOUNT);
+			header.setMipMapCount(1);
 		}
 
 		// Create a little endian buffer that holds the bytes of the DDS file.

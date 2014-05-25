@@ -13,7 +13,7 @@ import gov.nasa.worldwind.util.dds.DXTCompressionAttributes;
 import gov.nasa.worldwind.util.dds.DXTCompressor;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.util.concurrent.Semaphore;
 
 import nicastel.renderscripttexturecompressor.etc1.rs.RsETC1;
 import nicastel.renderscripttexturecompressor.etc1.rs.ScriptC_etc1compressor;
@@ -29,6 +29,8 @@ import android.support.v8.renderscript.RenderScript;
  */
 public class ETC1Compressor implements DXTCompressor
 {
+	Semaphore semaphore = new Semaphore(1);
+	
     public ETC1Compressor()
     {
     }
@@ -37,6 +39,8 @@ public class ETC1Compressor implements DXTCompressor
     {
         return ETCConstants.D3DFMT_ETC1;
     }
+    
+    
 
     public int getCompressedSize(Bitmap image, DXTCompressionAttributes attributes)
     {
@@ -86,39 +90,45 @@ public class ETC1Compressor implements DXTCompressor
             throw new IllegalArgumentException(message);
         }
         
-        // TODO
-//    	ByteBuffer bufferIn = ByteBuffer.allocateDirect(
-//    			image.getRowBytes() * image.getHeight()).order(
-//				ByteOrder.nativeOrder());
-//    	image.copyPixelsToBuffer(bufferIn);
-//    	bufferIn.rewind();       
+        try {
+			
+			
+			MipmapControl control = MipmapControl.MIPMAP_NONE;
+	        int usage = Allocation.USAGE_SHARED;
+	        if(attributes.isBuildMipmaps()) {
+	        	// Needs an ARGB 8888 Bitmap as input
+	        	control = MipmapControl.MIPMAP_FULL;
+	        	usage = Allocation.USAGE_SCRIPT;
+	        	
+	        }
+	    	
+	    	Allocation alloc = Allocation.createFromBitmap(rs, image, control, usage);
+	    	alloc.generateMipmaps();
+	    	
+	    	int pixelSize = image.getRowBytes()/image.getWidth();
+	    	
+	    	int encodedImageSize =  Math.max(alloc.getBytesSize() / ((RsETC1.DECODED_BLOCK_SIZE/3)*pixelSize), 1)*8;
+	        //System.out.println("encodedImageSize : "+encodedImageSize);
+	    	
+	    	ByteBuffer bufferOut = ByteBuffer.allocateDirect(encodedImageSize);
+	        
+	    	semaphore.acquire();
+	    	
+	        RsETC1.encodeImage(rs, script, alloc, image.getWidth(), image.getHeight(), pixelSize, image.getRowBytes(), bufferOut, attributes.isBuildMipmaps());
+	        alloc.destroy();	     
+	        
+	        semaphore.release();
+	        
+	        bufferOut.rewind();   
+	        
+	        buffer.put(bufferOut); 
+	        
+	       
+		} catch (InterruptedException e) {			
+			e.printStackTrace();
+		}
         
-        MipmapControl control = MipmapControl.MIPMAP_NONE;
-        int usage = Allocation.USAGE_SHARED;
-        if(attributes.isBuildMipmaps()) {
-        	// Needs an ARGB 8888 Bitmap as input
-        	control = MipmapControl.MIPMAP_FULL;
-        	usage = Allocation.USAGE_SCRIPT;
-        	
-        }
-    	
-    	Allocation alloc = Allocation.createFromBitmap(rs, image, control, usage);
-    	alloc.generateMipmaps();
-    	
-    	int pixelSize = image.getRowBytes()/image.getWidth();
-    	
-    	int encodedImageSize =  Math.max(alloc.getBytesSize() / ((RsETC1.DECODED_BLOCK_SIZE/3)*pixelSize), 1)*8;
-        //System.out.println("encodedImageSize : "+encodedImageSize);
-    	
-    	ByteBuffer bufferOut = ByteBuffer.allocateDirect(encodedImageSize);
-        
-        RsETC1.encodeImage(rs, script, alloc, image.getWidth(), image.getHeight(), pixelSize, image.getRowBytes(), bufferOut, attributes.isBuildMipmaps());
-        
-        alloc.destroy();
-        
-        bufferOut.rewind();   
-        
-        buffer.put(bufferOut);        
+
     }
 
     protected ColorBlockExtractor getColorBlockExtractor(Bitmap image)
