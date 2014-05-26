@@ -215,11 +215,22 @@ inline int convert4To8(int b) {
 }
 
 static
+inline int3 convert4To8_vec(int3 b) {
+    int3 c = b & 0xf;
+    return (c << 4) | c;
+}
+
+static
 inline int convert5To8(int b) {
     int c = b & 0x1f;
     return (c << 3) | (c >> 2);
 }
 
+static
+inline int3 convert5To8_vec(int3 b) {
+    int3 c = b & 0x1f;
+    return (c << 3) | (c >> 2);
+}
 static
 inline int convert6To8(int b) {
     int c = b & 0x3f;
@@ -232,9 +243,20 @@ inline int divideBy255(int d) {
 }
 
 static
+inline int3 divideBy255_vec(int3 d) {
+    return (d + 128 + (d >> 8)) >> 8;
+}
+
+static
 inline int convert8To4(int b) {
     int c = b & 0xff;
     return divideBy255(c * 15);
+}
+
+static
+inline int3 convert8To4_vec(int3 b) {
+    int3 c = b & 0xff;
+    return divideBy255_vec(c * 15);
 }
 
 static
@@ -242,6 +264,13 @@ inline int convert8To5(int b) {
     int c = b & 0xff;
     return divideBy255(c * 31);
 }
+
+static
+inline int3 convert8To5_vec(int3 b) {
+    int3 c = b & 0xff;
+    return divideBy255_vec(c * 31);
+}
+
 
 static
 inline int convertDiff(int base, int diff) {
@@ -272,10 +301,11 @@ inline int square(int x) {
 }
 
 static
-void etc_average_colors_subblock(const etc1_byte* pIn, etc1_uint32 inMask, etc1_byte* pColors, bool flipped, bool second) {
-    int r = 0;
-    int g = 0;
-    int b = 0;
+void etc_average_colors_subblock(const etc1_byte* pIn, etc1_uint32 inMask, uchar3* pColors, bool flipped, bool second) {
+    int3 pixel;
+    pixel.r = 0;
+    pixel.g = 0;
+    pixel.b = 0;
 
     if (flipped) {
         int by = 0;
@@ -288,9 +318,11 @@ void etc_average_colors_subblock(const etc1_byte* pIn, etc1_uint32 inMask, etc1_
                 int i = x + 4 * yy;
                 if (inMask & (1 << i)) {
                     const etc1_byte* p = pIn + i * 3;
-                    r += *(p++);
-                    g += *(p++);
-                    b += *(p++);
+                    int3 padd;
+                    padd.r = *(p++);
+                    padd.g = *(p++);
+                    padd.b = *(p++);
+                    pixel += padd;
                 }
             }
         }
@@ -305,71 +337,56 @@ void etc_average_colors_subblock(const etc1_byte* pIn, etc1_uint32 inMask, etc1_
                 int i = xx + 4 * y;
                 if (inMask & (1 << i)) {
                     const etc1_byte* p = pIn + i * 3;
-                    r += *(p++);
-                    g += *(p++);
-                    b += *(p++);
+                    int3 padd;
+                    padd.r = *(p++);
+                    padd.g = *(p++);
+                    padd.b = *(p++);
+                    pixel += padd;
                 }
             }
         }
     }
-    pColors[0] = (etc1_byte)((r + 4) >> 3);
-    pColors[1] = (etc1_byte)((g + 4) >> 3);
-    pColors[2] = (etc1_byte)((b + 4) >> 3);
+    pixel = (pixel + 4) >> 3;
+    pColors[0] = convert_uchar3(pixel);
 }
 
 static
-void etc_encodeBaseColors(etc1_byte* pBaseColors, const etc1_byte* pColors, etc_compressed* pCompressed) {
-    int r1, g1, b1, r2, g2, b2; // 8 bit base colors for sub-blocks
+void etc_encodeBaseColors(etc1_byte* pBaseColors, const uchar3* pColors, etc_compressed* pCompressed) {
+    int3 pixel1, pixel2; // 8 bit base colors for sub-blocks
     bool differential;
     {
-        int r51 = convert8To5(pColors[0]);
-        int g51 = convert8To5(pColors[1]);
-        int b51 = convert8To5(pColors[2]);
-        int r52 = convert8To5(pColors[3]);
-        int g52 = convert8To5(pColors[4]);
-        int b52 = convert8To5(pColors[5]);
+    	int3 p51,p52;
+        p51 = convert8To5_vec(convert_int3(pColors[0]));
+        p52 = convert8To5_vec(convert_int3(pColors[1]));
 
-        r1 = convert5To8(r51);
-        g1 = convert5To8(g51);
-        b1 = convert5To8(b51);
+		pixel1 = convert5To8_vec(p51);
 
-        int dr = r52 - r51;
-        int dg = g52 - g51;
-        int db = b52 - b51;
+        int3 pDiff = p52 - p51;
 
-        differential = inRange4bitSigned(dr) && inRange4bitSigned(dg)
-                && inRange4bitSigned(db);
+        differential = inRange4bitSigned(pDiff.r) && inRange4bitSigned(pDiff.g)
+                && inRange4bitSigned(pDiff.b);
         if (differential) {
-            r2 = convert5To8(r51 + dr);
-            g2 = convert5To8(g51 + dg);
-            b2 = convert5To8(b51 + db);
-            pCompressed->high |= (r51 << 27) | ((7 & dr) << 24) | (g51 << 19)
-                    | ((7 & dg) << 16) | (b51 << 11) | ((7 & db) << 8) | 2;
+        	pixel2 = convert5To8_vec(p51 + pDiff);
+            pCompressed->high |= (p51.r << 27) | ((7 & pDiff.r) << 24) | (p51.g << 19)
+                    | ((7 & pDiff.g) << 16) | (p51.b << 11) | ((7 & pDiff.b) << 8) | 2;
         }
     }
 
     if (!differential) {
-        int r41 = convert8To4(pColors[0]);
-        int g41 = convert8To4(pColors[1]);
-        int b41 = convert8To4(pColors[2]);
-        int r42 = convert8To4(pColors[3]);
-        int g42 = convert8To4(pColors[4]);
-        int b42 = convert8To4(pColors[5]);
-        r1 = convert4To8(r41);
-        g1 = convert4To8(g41);
-        b1 = convert4To8(b41);
-        r2 = convert4To8(r42);
-        g2 = convert4To8(g42);
-        b2 = convert4To8(b42);
-        pCompressed->high |= (r41 << 28) | (r42 << 24) | (g41 << 20) | (g42
-                << 16) | (b41 << 12) | (b42 << 8);
+    	int3 p41,p42;
+        p41 = convert8To4_vec(convert_int3(pColors[0]));
+        p42 = convert8To4_vec(convert_int3(pColors[1]));
+        pixel1 = convert4To8_vec(p41);
+        pixel2 = convert4To8_vec(p42);
+        pCompressed->high |= (p41.r << 28) | (p42.r << 24) | (p41.g << 20) | (p42.g
+                << 16) | (p41.b << 12) | (p42.b << 8);
     }
-    pBaseColors[0] = r1;
-    pBaseColors[1] = g1;
-    pBaseColors[2] = b1;
-    pBaseColors[3] = r2;
-    pBaseColors[4] = g2;
-    pBaseColors[5] = b2;
+    pBaseColors[0] = pixel1.r;
+    pBaseColors[1] = pixel1.g;
+    pBaseColors[2] = pixel1.b;
+    pBaseColors[3] = pixel2.r;
+    pBaseColors[4] = pixel2.g;
+    pBaseColors[5] = pixel2.b;
 }
 
 static etc1_uint32 chooseModifier(const etc1_byte* pBaseColors,
@@ -377,26 +394,27 @@ static etc1_uint32 chooseModifier(const etc1_byte* pBaseColors,
         const int* pModifierTable) {
     etc1_uint32 bestScore = ~0;
     int bestIndex = 0;
-    int pixelR = pIn[0];
-    int pixelG = pIn[1];
-    int pixelB = pIn[2];
-    int r = pBaseColors[0];
-    int g = pBaseColors[1];
-    int b = pBaseColors[2];
+    int3 pixel, base;
+    pixel.r = pIn[0];
+    pixel.g = pIn[1];
+    pixel.b = pIn[2];
+    base.r = pBaseColors[0];
+    base.g = pBaseColors[1];
+    base.b = pBaseColors[2];
     for (int i = 0; i < 4; i++) {
         int modifier = pModifierTable[i];
-        int decodedG = etc1_clamp(g + modifier);
-        etc1_uint32 score = (etc1_uint32) (6 * square(decodedG - pixelG));
+        int decodedG = etc1_clamp(base.g + modifier);
+        etc1_uint32 score = (etc1_uint32) (6 * square(decodedG - pixel.g));
         if (score >= bestScore) {
             continue;
         }
-        int decodedR = etc1_clamp(r + modifier);
-        score += (etc1_uint32) (3 * square(decodedR - pixelR));
+        int decodedR = etc1_clamp(base.r + modifier);
+        score += (etc1_uint32) (3 * square(decodedR - pixel.r));
         if (score >= bestScore) {
             continue;
         }
-        int decodedB = etc1_clamp(b + modifier);
-        score += (etc1_uint32) square(decodedB - pixelB);
+        int decodedB = etc1_clamp(base.b + modifier);
+        score += (etc1_uint32) square(decodedB - pixel.b);
         if (score < bestScore) {
             bestScore = score;
             bestIndex = i;
@@ -446,7 +464,7 @@ void etc_encode_subblock_helper(const etc1_byte* pIn, etc1_uint32 inMask, etc_co
 }
 
 static
-void etc_encode_block_helper(const etc1_byte* pIn, etc1_uint32 inMask, const etc1_byte* pColors, etc_compressed* pCompressed, bool flipped) {
+void etc_encode_block_helper(const etc1_byte* pIn, etc1_uint32 inMask, const uchar3* pColors, etc_compressed* pCompressed, bool flipped) {
     pCompressed->score = ~0;
     pCompressed->high = (flipped ? 1 : 0);
     pCompressed->low = 0;
@@ -491,12 +509,12 @@ void etc_encode_block_helper(const etc1_byte* pIn, etc1_uint32 inMask, const etc
 // Output is an ETC1 compressed version of the data.
 static
 void etc1_encode_block(const etc1_byte* pIn, etc1_uint32 inMask, etc1_byte* pOut) {
-    etc1_byte colors[6];
-    etc1_byte flippedColors[6];
+    uchar3 colors[2];
+    uchar3 flippedColors[2];
     etc_average_colors_subblock(pIn, inMask, colors, false, false);
-    etc_average_colors_subblock(pIn, inMask, colors + 3, false, true);
+    etc_average_colors_subblock(pIn, inMask, colors + 1, false, true);
     etc_average_colors_subblock(pIn, inMask, flippedColors, true, false);
-    etc_average_colors_subblock(pIn, inMask, flippedColors + 3, true, true);
+    etc_average_colors_subblock(pIn, inMask, flippedColors + 1, true, true);
 
     etc_compressed a, b;
     etc_encode_block_helper(pIn, inMask, colors, &a, false);
