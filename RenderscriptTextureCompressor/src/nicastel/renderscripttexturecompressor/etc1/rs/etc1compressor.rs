@@ -625,11 +625,7 @@ ushort4 __attribute__((kernel)) root(uint32_t x)  {
 		//rsDebug("pOut[6]",pOut[6]);
 		//rsDebug("pOut[7]",pOut[7]);
 		
-		ushort4 out;		
-		out.x = pOut[0] | pOut[1] << 8;
-		out.y = pOut[2] | pOut[3] << 8;
-		out.z = pOut[4] | pOut[5] << 8;
-		out.w = pOut[6] | pOut[7] << 8;
+		ushort4 out = *((ushort4 *)pOut);
 		
 		//rsDebug("out",out);
 		
