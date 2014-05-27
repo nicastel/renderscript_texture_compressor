@@ -187,7 +187,7 @@ public class JavaETC1 {
 
 	static
 	int divideBy255(int d) {
-	    return (d + 128 + (d >> 8)) >> 8;
+	    return (d / 255);
 	}
 
 	static
