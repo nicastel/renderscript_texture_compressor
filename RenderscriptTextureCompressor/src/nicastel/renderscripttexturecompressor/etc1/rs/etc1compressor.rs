@@ -351,7 +351,7 @@ void etc_average_colors_subblock(const etc1_byte* pIn, etc1_uint32 inMask, uchar
 }
 
 static
-void etc_encodeBaseColors(etc1_byte* pBaseColors, const uchar3* pColors, etc_compressed* pCompressed) {
+void etc_encodeBaseColors(uchar3* pBaseColors, const uchar3* pColors, etc_compressed* pCompressed) {
     int3 pixel1, pixel2; // 8 bit base colors for sub-blocks
     bool differential;
     {
@@ -381,15 +381,11 @@ void etc_encodeBaseColors(etc1_byte* pBaseColors, const uchar3* pColors, etc_com
         pCompressed->high |= (p41.r << 28) | (p42.r << 24) | (p41.g << 20) | (p42.g
                 << 16) | (p41.b << 12) | (p42.b << 8);
     }
-    pBaseColors[0] = pixel1.r;
-    pBaseColors[1] = pixel1.g;
-    pBaseColors[2] = pixel1.b;
-    pBaseColors[3] = pixel2.r;
-    pBaseColors[4] = pixel2.g;
-    pBaseColors[5] = pixel2.b;
+    pBaseColors[0] = convert_uchar3(pixel1);
+    pBaseColors[1] = convert_uchar3(pixel2);
 }
 
-static etc1_uint32 chooseModifier(const etc1_byte* pBaseColors,
+static etc1_uint32 chooseModifier(const uchar3* pBaseColors,
         const etc1_byte* pIn, etc1_uint32 *pLow, int bitIndex,
         const int* pModifierTable) {
     etc1_uint32 bestScore = ~0;
@@ -398,9 +394,7 @@ static etc1_uint32 chooseModifier(const etc1_byte* pBaseColors,
     pixel.r = pIn[0];
     pixel.g = pIn[1];
     pixel.b = pIn[2];
-    base.r = pBaseColors[0];
-    base.g = pBaseColors[1];
-    base.b = pBaseColors[2];
+    base = convert_int3(pBaseColors[0]);
     for (int i = 0; i < 4; i++) {
         int modifier = pModifierTable[i];
         int decodedG = etc1_clamp(base.g + modifier);
@@ -427,7 +421,8 @@ static etc1_uint32 chooseModifier(const etc1_byte* pBaseColors,
 }
 
 static
-void etc_encode_subblock_helper(const etc1_byte* pIn, etc1_uint32 inMask, etc_compressed* pCompressed, bool flipped, bool second, const etc1_byte* pBaseColors, const int* pModifierTable) {
+void etc_encode_subblock_helper(const etc1_byte* pIn, etc1_uint32 inMask, etc_compressed* pCompressed, 
+	bool flipped, bool second, const uchar3* pBaseColors, const int* pModifierTable) {
     int score = pCompressed->score;
     if (flipped) {
         int by = 0;
@@ -469,7 +464,7 @@ void etc_encode_block_helper(const etc1_byte* pIn, etc1_uint32 inMask, const uch
     pCompressed->high = (flipped ? 1 : 0);
     pCompressed->low = 0;
 
-    etc1_byte pBaseColors[6];
+    uchar3 pBaseColors[2];
 
     etc_encodeBaseColors(pBaseColors, pColors, pCompressed);
 
@@ -493,7 +488,7 @@ void etc_encode_block_helper(const etc1_byte* pIn, etc1_uint32 inMask, const uch
         temp.high = firstHalf.high | (i << 2);
         temp.low = firstHalf.low;
         etc_encode_subblock_helper(pIn, inMask, &temp, flipped, true,
-                pBaseColors + 3, pModifierTable);
+                pBaseColors + 1, pModifierTable);
         if (i == 0) {
             *pCompressed = temp;
         } else {
