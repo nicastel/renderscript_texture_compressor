@@ -56,7 +56,7 @@ public class RsETC1 {
 	 * @param containMipmaps 
 	 */
 	public static int encodeImage(RenderScript rs, ScriptC_etc1compressor script, Allocation aIn, int width, int height,
-			int pixelSize, int stride, ByteBuffer compressedImage, boolean containMipmaps) {
+			int pixelSize, int stride, ByteBuffer compressedImage, ByteBuffer compressedAlphaImage, boolean containMipmaps, boolean hasAlpha) {
 		
 		long tInitArray = java.lang.System.currentTimeMillis();
 		
@@ -64,6 +64,7 @@ public class RsETC1 {
 		script.set_width(width);
 		script.set_containMipmaps(containMipmaps);
 		script.set_pixelSize(pixelSize);
+		script.set_hasAlpha(hasAlpha);
 		
 		if (pixelSize < 2 || pixelSize > 4) {
 			return -1;
@@ -73,12 +74,15 @@ public class RsETC1 {
 		
 		int size = Math.max(aIn.getBytesSize() / ((DECODED_BLOCK_SIZE/3)*pixelSize), 1);
 		Allocation aout = Allocation.createSized(rs, Element.U16_4(rs), size);
-
+		
+		Allocation aoutAlpha = Allocation.createSized(rs, Element.U8(rs), 8*size);
+		
 		tInitArray = java.lang.System.currentTimeMillis() - tInitArray;
 		//System.out.println("tInitArray : "+tInitArray+" ms");
 		
 		long tFillAlloc = java.lang.System.currentTimeMillis();		
 		script.bind_pInA(aIn);		
+		script.bind_outAlpha(aoutAlpha);		
 		tFillAlloc = java.lang.System.currentTimeMillis() - tFillAlloc;
 		//System.out.println("tFillAlloc : "+tFillAlloc+" ms");
 		
@@ -95,9 +99,14 @@ public class RsETC1 {
 		
 		Allocation aout2 = Allocation.createSized(rs, Element.U8(rs), 8*size);
 		aout2.copyFromUnchecked(arrayOut3Temp);
-		
+
 		aout2.copyTo(compressedImage.array());	
 		aout2.destroy();
+		
+		if(hasAlpha) {
+			aoutAlpha.copyTo(compressedAlphaImage.array());				
+		}
+		aoutAlpha.destroy();
 		
 		tFillOut = java.lang.System.currentTimeMillis() - tFillOut;
 		

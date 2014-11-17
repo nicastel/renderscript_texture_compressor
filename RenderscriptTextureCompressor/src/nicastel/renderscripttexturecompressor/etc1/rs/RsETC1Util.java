@@ -190,7 +190,7 @@ public class RsETC1Util {
 		
         // TODO : there is a bug in the android sdk :
         // ETC1.encodeImage((ByteBuffer) input, width, height, 3, stride, compressedImage); should be
-        RsETC1.encodeImage(rs, script, p00, width, height, pixelSize, stride, compressedImage, false);
+        RsETC1.encodeImage(rs, script, p00, width, height, pixelSize, stride, compressedImage, null, false, false);
         p00.destroy();
         
         compressedImage.rewind();

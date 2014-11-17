@@ -29,6 +29,7 @@ import android.support.v8.renderscript.RenderScript;
 public class ETC1Benchmarck {
 	private final static int mask = 8;
 	private static ByteBuffer compressedImage;
+	private static ByteBuffer compressedImageAlpha;
 	private static Bitmap bitmapARGB;
 	private static Bitmap bitmap;
 	private static ByteBuffer buffer;
@@ -101,6 +102,8 @@ public class ETC1Benchmarck {
 			final int encodedImageSize = ETC1.getEncodedDataSize(
 					bitmap.getWidth(), bitmap.getHeight());
 			compressedImage = ByteBuffer.allocateDirect(encodedImageSize)
+					.order(ByteOrder.nativeOrder());
+			compressedImageAlpha = ByteBuffer.allocateDirect(encodedImageSize)
 					.order(ByteOrder.nativeOrder());
 		}
 		try {
@@ -185,7 +188,36 @@ public class ETC1Benchmarck {
 
 		// RGB_565 is 2 bytes per pixel
 		RsETC1.encodeImage(rs, script, alloc, bitmapARGB.getWidth(), bitmapARGB.getHeight(), 4,
-				4 * bitmapARGB.getWidth(), compressedImage, false);
+				4 * bitmapARGB.getWidth(), compressedImage, null, false, false);
+
+		ETC1Texture texture = new ETC1Texture(bitmapARGB.getWidth(),
+				bitmapARGB.getHeight(), compressedImage);
+		
+		alloc.destroy();
+		
+		// if (texture != null) {
+		// int estimatedMemorySize = ETC1.ETC_PKM_HEADER_SIZE
+		// + texture.getHeight() * texture.getWidth() / 2;
+		// File f = new
+		// File(Environment.getExternalStorageDirectory(),"bmngpkm.pkm");
+		// f.delete();
+		// f.createNewFile();
+		// ETC1Util.writeTexture(texture, new FileOutputStream(f));
+		// System.out.println("Texture PKM created ");
+		// }
+		// System.out.println("Texture PKM creation failed ");
+		
+		return texture;
+	}
+	
+	public static ETC1Texture testRsETC1ImageCompressorWithAlpha(RenderScript rs,
+			ScriptC_etc1compressor script) {
+		
+		Allocation alloc = Allocation.createFromBitmap(rs, bitmapARGB, MipmapControl.MIPMAP_NONE, Allocation.USAGE_SHARED);
+
+		// RGB_565 is 2 bytes per pixel
+		RsETC1.encodeImage(rs, script, alloc, bitmapARGB.getWidth(), bitmapARGB.getHeight(), 4,
+				4 * bitmapARGB.getWidth(), compressedImage, compressedImageAlpha, false, true);
 
 		ETC1Texture texture = new ETC1Texture(bitmapARGB.getWidth(),
 				bitmapARGB.getHeight(), compressedImage);

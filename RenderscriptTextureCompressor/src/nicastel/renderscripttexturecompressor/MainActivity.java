@@ -40,6 +40,13 @@ public class MainActivity extends Activity {
 		}		
 		tRsDDSImg = java.lang.System.currentTimeMillis() - tRsDDSImg;
 		
+		long tRsImgAlpha = java.lang.System.currentTimeMillis();
+		for(int i = 0; i<10; i++) {
+			ETC1Texture texture = ETC1Benchmarck.testRsETC1ImageCompressorWithAlpha(mRS, script);		
+		}		
+		tRsImgAlpha = java.lang.System.currentTimeMillis() - tRsImgAlpha;
+		
+		
 		long tJava = java.lang.System.currentTimeMillis();
 		for(int i = 0; i<10; i++) {
 			ETC1Benchmarck.testJavaETC1BlockCompressor();
@@ -76,7 +83,7 @@ public class MainActivity extends Activity {
 		
 		mBenchmarkResult.setText("Result: \n"
 				+ "1 Block 10*t : Rs N/A ms " + "Java " + tJava / 10.0 + " ms \n" + "SDK " + tSdk / 10.0 + " ms\n"
-				+ "Image 256*128 : Rs PKM " + tRsImg / 10.0 + " ms Rs DDS " + tRsDDSImg / 10.0 + " ms Java " + tJavaImg / 10.0 +" ms \n" + "SDK " + tSdkImg / 10.0 + " ms");
+				+ "Image 256*128 : Rs PKM " + tRsImg / 10.0 + " ms Rs Alpha " + tRsImgAlpha / 10.0 + " ms Rs DDS " + tRsDDSImg / 10.0 + " ms Java " + tJavaImg / 10.0 +" ms \n" + "SDK " + tSdkImg / 10.0 + " ms");
 
 	}
 	

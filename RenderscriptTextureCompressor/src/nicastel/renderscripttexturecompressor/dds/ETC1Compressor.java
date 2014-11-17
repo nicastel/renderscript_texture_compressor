@@ -114,7 +114,8 @@ public class ETC1Compressor implements DXTCompressor
 	        
 	    	semaphore.acquire();
 	    	
-	        RsETC1.encodeImage(rs, script, alloc, image.getWidth(), image.getHeight(), pixelSize, image.getRowBytes(), bufferOut, attributes.isBuildMipmaps());
+	    	// TODO : handle alpha
+	        RsETC1.encodeImage(rs, script, alloc, image.getWidth(), image.getHeight(), pixelSize, image.getRowBytes(), bufferOut, null, attributes.isBuildMipmaps(), false);
 	        alloc.destroy();	     
 	        
 	        semaphore.release();

@@ -104,10 +104,12 @@ public class PKMEncoder {
 		return null;
 	}
 
-	public static ETC1Texture encodeTextureAsETC1_Rs(InputStream stream, RenderScript rs, ScriptC_etc1compressor script)
+	public static ETC1Texture [] encodeTextureAsETC1_Rs(InputStream stream, RenderScript rs, ScriptC_etc1compressor script)
 			throws IOException, FileNotFoundException {
 		// stream.reset();
 		// stream.mark(1024);
+		boolean hasAlpha = false;
+		ByteBuffer compressedImageAlpha = null;
 		Options opts = new BitmapFactory.Options();
 		//opts.inPremultiplied = false;
 		opts.inPreferredConfig = Config.RGB_565;
@@ -116,15 +118,17 @@ public class PKMEncoder {
 			System.out.println("Width : " + bitmap.getWidth());
 			System.out.println("Height : " + bitmap.getHeight());
 			System.out.println("Config : " + bitmap.getConfig());
+			
+			final int encodedImageSize = RsETC1.getEncodedDataSize(
+					bitmap.getWidth(), bitmap.getHeight());
 
 			if (bitmap.getConfig() == Bitmap.Config.ARGB_4444
 					|| bitmap.getConfig() == Bitmap.Config.ARGB_8888) {
-				System.out.println("Texture need aplha channel");
-				return null;
+				hasAlpha = true;
+				compressedImageAlpha = ByteBuffer.allocateDirect(
+						encodedImageSize).order(ByteOrder.nativeOrder());
 			}
 
-			final int encodedImageSize = RsETC1.getEncodedDataSize(
-					bitmap.getWidth(), bitmap.getHeight());
 			ByteBuffer compressedImage = ByteBuffer.allocateDirect(
 					encodedImageSize).order(ByteOrder.nativeOrder());
 			// RGB_565 is 2 bytes per pixel
@@ -132,14 +136,22 @@ public class PKMEncoder {
 			Allocation alloc = Allocation.createFromBitmap(rs, bitmap, MipmapControl.MIPMAP_NONE, Allocation.USAGE_SHARED);
 
 			RsETC1.encodeImage(rs, script, alloc, bitmap.getWidth(), bitmap.getHeight(),
-					2, 2 * bitmap.getWidth(), compressedImage, false);
+					2, 2 * bitmap.getWidth(), compressedImage, compressedImageAlpha, false, hasAlpha);
 
 			ETC1Texture texture = new ETC1Texture(bitmap.getWidth(),
 					bitmap.getHeight(), compressedImage);
+			
+			ETC1Texture textureAlpha = null;
+			if(hasAlpha) {
+				textureAlpha = new ETC1Texture(bitmap.getWidth(),
+						bitmap.getHeight(), compressedImageAlpha);				
+			}		
 
 			alloc.destroy();
 			
-			return texture;
+			ETC1Texture [] result = {texture,textureAlpha};
+			
+			return result;
 		}
 		return null;
 	}
