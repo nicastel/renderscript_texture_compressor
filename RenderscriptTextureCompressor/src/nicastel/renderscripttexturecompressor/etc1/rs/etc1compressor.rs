@@ -515,6 +515,7 @@ uint32_t pixelSize;
 bool containMipmaps;
 bool hasAlpha;
 bool useETC2;
+bool forcePunchthrough;
 uchar * outAlpha;
 
 static etc1_uint32 pullBlockAndMask_from_Raster(uint32_t pixelSize, uint32_t bn, const etc1_byte* pIn,  uint32_t height, uint32_t width, uchar4* block, bool containMipmaps) {
@@ -607,7 +608,7 @@ ushort4 __attribute__((kernel)) root(uint32_t x)  {
 		//rsDebug("===========root==================",x);
 
 		etc1_byte pOut [8];
-		etc1_byte pOutAlpha [8];
+		etc1_byte * pOutAlpha = outAlpha + (x*8);
 		uchar4 block [16];
 		
 		//  R, G, B. Byte (3 * (x + 4 * y) is the R value of pixel (x, y)
@@ -631,7 +632,7 @@ ushort4 __attribute__((kernel)) root(uint32_t x)  {
 				block[i].b=block[i].a;				
 			}
 			etc1_encode_block (block, amask, pOutAlpha);
-		}
+		}		
 		
 		//rsDebug("pOut[0]",pOut[0]);
 		//rsDebug("pOut[1]",pOut[1]);
